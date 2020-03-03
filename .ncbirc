@@ -1,0 +1,10 @@
+[NCBI]
+Data=/home/karimy/fsa-blast/data
+
+[BLAST]
+BLASTDB=/home/karimy/SparkLeBLAST/nr_64.fasta
+BLASTMAT=/home/karimy/fsa-blast/data
+
+[mpiBLAST]
+Shared=/home/karimy/mpiBLASTData
+Local=/home/karimy/mpiBLASTData

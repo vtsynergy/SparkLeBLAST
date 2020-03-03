@@ -1,0 +1,4 @@
+#!/bin/bash
+IFS= read -r dbname;
+dbRootPath=$1
+/home/karimy/mpiblast-1.6.0/ncbi/bin/formatdb -i $dbRootPath/$dbname -o T;
