@@ -1,17 +1,17 @@
 #!/bin/bash
 
 # mkdir /work/cascades/karimy/spark/logs/%j
-#SBATCH --nodes=32
+#SBATCH --nodes=3
 #  ntasks per node MUST be one, because multiple slaves per work doesn't
 #  work well with slurm + spark in this script (they would need increasing 
 #  ports among other things)
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=32
+#SBATCH --cpus-per-task=24
 #  Beware! $HOME will not be expanded and invalid paths will result Slurm jobs
 #  hanging indefinitely with status CG (completing) when calling scancel!
-#SBATCH --output="/work/cascades/karimy/spark/logs/%j.out"
-#SBATCH --error="/work/cascades/karimy/spark/logs/%j.err"
-#SBATCH --time=01:00:00
+#SBATCH --output="/work/dragonstooth/karimy/spark/logs/%j.out"
+#SBATCH --error="/work/dragonstooth/karimy/spark/logs/%j.err"
+#SBATCH --time=02:00:00
 #SBATCH --exclusive
 #SBATCH -A hpcbigdata2
 
