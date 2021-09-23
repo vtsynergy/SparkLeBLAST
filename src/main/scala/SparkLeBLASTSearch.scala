@@ -35,7 +35,7 @@ object SparkLeBLASTSearch {
     val gapOpen = args(6)
     val gapExtend = args(7)
     val inputFormat = args(8).toInt
-
+    val alignmentsPerQuery = args(9).toInt
 
     /* Get partitions names */
     val partitionNames = sc.newAPIHadoopFile(partitionsNames, classOf[TextInputFormat], 
@@ -45,7 +45,7 @@ object SparkLeBLASTSearch {
     
     /* Set arguments for NCBI BLAST */
     script = script + " " + queryPath + " " + dbPath + " " + dbLength.toString + " " + gapOpen +
-                 " " + gapExtend + " " + inputFormat;
+                 " " + gapExtend + " " + inputFormat + " " + alignmentsPerQuery;
 
     val resultUnsorted2 = partitions.pipe(script);//.saveAsTextFile("finalOutput");
    
@@ -105,8 +105,8 @@ object SparkLeBLASTSearch {
         resultByQuery.saveAsTextFile("finalOutputByQuery");
         val resultSorted = resultByQuery.mapValues( line => line.split("\n"))
                                         .mapValues(
-        _.map(result => (result,result.split("\t")(result.split("\t").length - 2).toDouble)).sortBy(_._2));
-        resultSorted.map{ case (k,v) => (k,v.mkString("\n")) }.saveAsTextFile("finalOutputSorted");
+        _.map(result => (result,result.split("\t")(result.split("\t").length - 2).toDouble)).sortBy(_._2).take(alignmentsPerQuery));
+        resultSorted.map{ case (k,v) => v.mkString("\n") }.saveAsTextFile("finalOutputSorted");
 
     }
     

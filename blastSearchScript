@@ -1,3 +1,3 @@
 #!/bin/bash
 IFS= read -r dbname;
-/home/karimy/intel/vtune_amplifier_2019.2.0.588069/bin64/amplxe-cl -collect hotspots -r=nr_vtune /home/karimy/mpiblast-1.6.0/ncbi/build/blastall -p blastp -i $1 -d $2/$dbname -z $3 -G $4 -E $5 -e 1E-02 -v 25 -b 25 -m $6
+/home/karimy/mpiblast-1.6.0/ncbi/build/blastall -p blastp -i $1 -d $2/$dbname -z $3 -G $4 -E $5 -e 1E-02 -v $7 -b $7 -m $6
