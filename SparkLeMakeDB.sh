@@ -63,6 +63,12 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+# Required Args check:
+# --------------------
+if [ -z "${INPUT_PATH}" ] || [ -z "${OUTPUT_PATH}" ] || [ -z ${HOSTNAME_PREFIX} ]; then
+    usage
+fi
+
 # Defaults
 # --------
 
@@ -83,10 +89,6 @@ fi
 # Args correctness checks
 # -----------------------
 
-if [ -z "${INPUT_PATH}" ] || [ -z "${OUTPUT_PATH}" ] || [ -z ${HOSTNAME_PREFIX} ]; then
-    usage
-fi
-
 if [ -z ${SPARK_SLURM_PATH} ]; then
     echo "Error: Please set SPARK_SLURM_PATH env. variable"
     exit 1
@@ -106,6 +108,9 @@ echo "WORKERS          = ${WORKERS}"
 echo "Spark SLURM PATH = ${SPARK_SLURM_PATH}"
 echo "Job Time         = ${TIME}"
 echo "HOSTNAME_PREFIX  = ${HOSTNAME_PREFIX}"
+
+# Load JAVA
+module load Java/11.0.2
 
 # Launch Spark Cluster using spark-slurm
 CLUTER_ID=$(${SPARK_SLURM_PATH}/spark start -t ${TIME} ${WORKERS} | awk '{print $6}')
@@ -128,9 +133,10 @@ while [ ! -d ${SLURM_JOB_DIR} ]; do
 done
 
 # Get Spark Master Hostname and construct Master Address
-SPARK_MASTER_HOSTNAME=$(ls ${SLURM_JOB_DIR}/logs | grep -o "${HOSTNAME_PREFIX}[0-9]*")
+SPARK_MASTER_HOSTNAME=$(ls ${SLURM_JOB_DIR}/logs | grep -o "${HOSTNAME_PREFIX}[0-9]*" | head -n 1)
 echo ${SPARK_MASTER_HOSTNAME}
 SPARK_MASTER_ADDRESS="spark://${SPARK_MASTER_HOSTNAME}:7077"
 echo ${SPARK_MASTER_ADDRESS}
 
 # Submit Spark job to format the BLAST DB
+/home/karimy/spark-2.2.0-bin-hadoop2.6/bin/spark-submit --master ${SPARK_MASTER_ADDRESS} --verbose --conf "spark.local.dir=/home/karimy/tmpSpark" --conf "spark.network.timeout=3600" --conf "spark.driver.extraJavaOptions=-XX:MaxHeapSize=120g" --conf "spark.worker.extraJavaOptions=-XX:MaxHeapSize=100g" --conf "spark.driver.memory=4g" --conf "spark.executor.memory=4g" --class SparkLeMakeDB target/scala-2.11/simple-project_2.11-1.0.jar ${PARTITIONS} ${INPUT_PATH} "/home/karimy/SparkLeBLAST/formatdbScript" ${OUTPUT_PATH};
