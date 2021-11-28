@@ -27,6 +27,7 @@ object SparkLeMakeDB {
     val filePath = args(1)
     var script = args(2)
     val dbName = args(3)
+    val dbType = args(4)
 
     /* Read database into an RDD*/
     val dataset = sc.newAPIHadoopFile(filePath, classOf[TextInputFormat], classOf[LongWritable], classOf[Text],conf)
@@ -72,7 +73,7 @@ object SparkLeMakeDB {
     //end map partition with index
     
     // pass db path as argument to formatting script
-    script = script + " " + dbName
+    script = script + " " + dbName + " " + dbType
 
     
     try{  

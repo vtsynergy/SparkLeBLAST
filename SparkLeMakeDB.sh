@@ -9,7 +9,7 @@
 # dbName="/work/cascades/karimy/blastDB/nr_1000_indexed"
 # /home/karimy/spark-2.2.0-bin-hadoop2.6/bin/spark-submit --conf "spark.local.dir=/home/karimy/tmpSpark" --conf "spark.network.timeout=3600" --conf "spark.driver.extraJavaOptions=-XX:MaxHeapSize=120g" --conf "spark.worker.extraJavaOptions=-XX:MaxHeapSize=100g" --master $masterAddress --driver-memory 100g --executor-memory 100g --class MakeDB target/scala-2.11/simple-project_2.11-1.0.jar $numPartitions $dbPath "/home/karimy/SparkLeBLAST/formatdbScript" $dbName;
 
-usage() { echo "Usage: ./SparkLeMakeDB.sh -i /path/to/raw/db -t /path/to/output/db -o parse_options (T or F) -p <num_partitions> -w <num_workers> -time <Time in integer minutes> -h hostname_prefix -d /path/to/logs/dir (default current dir)" 1>&2; exit 1; }
+usage() { echo "Usage: ./SparkLeMakeDB.sh -i /path/to/raw/db -t /path/to/output/db -dbtype (prot or nucl) -o parse_options (T or F) -p <num_partitions> -w <num_workers> -time <Time in integer minutes> -h hostname_prefix -d /path/to/logs/dir (default current dir)" 1>&2; exit 1; }
 
 #!/bin/bash
 
@@ -29,6 +29,11 @@ while [[ $# -gt 0 ]]; do
       ;;
     -o|--options)
       PARSE_OPTIONS="$2"
+      shift # past argument
+      shift # past value
+      ;;
+    -dbtype|--dbtype)
+      DB_TYPE="$2"
       shift # past argument
       shift # past value
       ;;
@@ -86,6 +91,11 @@ if [ -z ${LOGS_DIR} ]; then
    LOGS_DIR=$(pwd)
 fi
 
+if [ -z ${DB_TYPE} ]; then
+   echo "Warning: -dbtype not set, setting to default to prot "
+   DB_TYPE="prot"
+fi
+
 # Args correctness checks
 # -----------------------
 
@@ -128,15 +138,36 @@ SLURM_JOB_DIR=${LOGS_DIR}/${SLURM_JOB_ID}
 echo ${SLURM_JOB_DIR}
 
 # Wait for job directory
+# while [ ! -d ${SLURM_JOB_DIR} ]; do
+#   sleep 1;
+# done
+
+# Wait for job to be running
+echo "Waiting for SLURM job to start"
+status=$(squeue -j ${SLURM_JOB_ID} | tail -n 1 | awk '{print $5}')
+while [[ "${status}" != "R"  ]]; do
+  sleep 1;
+  status=$(squeue -j ${SLURM_JOB_ID} | tail -n 1 | awk '{print $5}');
+done
+echo "SLURM job now running"
+
+echo "Waiting for job directory"
+# Wait for job directory
 while [ ! -d ${SLURM_JOB_DIR} ]; do
-   sleep 1;
+  sleep 1;
 done
 
 # Get Spark Master Hostname and construct Master Address
+echo "Waiting for Spark Master"
 SPARK_MASTER_HOSTNAME=$(ls ${SLURM_JOB_DIR}/logs | grep -o "${HOSTNAME_PREFIX}[0-9]*" | head -n 1)
+while [[ -z ${SPARK_MASTER_HOSTNAME} ]]; do
+    SPARK_MASTER_HOSTNAME=$(ls ${SLURM_JOB_DIR}/logs | grep -o "${HOSTNAME_PREFIX}[0-9]*" | head -n 1)
+done
+
+echo "Launching ..."
 echo ${SPARK_MASTER_HOSTNAME}
 SPARK_MASTER_ADDRESS="spark://${SPARK_MASTER_HOSTNAME}:7077"
 echo ${SPARK_MASTER_ADDRESS}
 
 # Submit Spark job to format the BLAST DB
-/home/karimy/spark-2.2.0-bin-hadoop2.6/bin/spark-submit --master ${SPARK_MASTER_ADDRESS} --verbose --conf "spark.local.dir=/home/karimy/tmpSpark" --conf "spark.network.timeout=3600" --conf "spark.driver.extraJavaOptions=-XX:MaxHeapSize=120g" --conf "spark.worker.extraJavaOptions=-XX:MaxHeapSize=100g" --conf "spark.driver.memory=4g" --conf "spark.executor.memory=4g" --class SparkLeMakeDB target/scala-2.11/simple-project_2.11-1.0.jar ${PARTITIONS} ${INPUT_PATH} "/home/karimy/SparkLeBLAST/formatdbScript" ${OUTPUT_PATH};
+/home/karimy/spark-2.2.0-bin-hadoop2.6/bin/spark-submit --master ${SPARK_MASTER_ADDRESS} --verbose --conf "spark.local.dir=/home/karimy/tmpSpark" --conf "spark.network.timeout=3600" --conf "spark.driver.extraJavaOptions=-XX:MaxHeapSize=220g" --conf "spark.worker.extraJavaOptions=-XX:MaxHeapSize=220g" --conf "spark.driver.memory=192g" --conf "spark.executor.memory=192g" --executor-cores 1 --class SparkLeMakeDB target/scala-2.11/simple-project_2.11-1.0.jar ${PARTITIONS} ${INPUT_PATH} "/home/karimy/SparkLeBLAST/formatdbScript_2.12" ${OUTPUT_PATH} ${DB_TYPE};

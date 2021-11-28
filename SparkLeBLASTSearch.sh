@@ -4,7 +4,7 @@
 # module load jdk
 
 
-usage() { echo "Usage: ./SparkLeBLASTSearch.sh -q /path/to/query -db /path/to/formatted/db -gop gap_open -gex gap_extend -nalign num_alignments -w <num_workers> -time <Time in integer minutes> -h hostname_prefix -d /path/to/logs/dir (default current dir)" 1>&2; exit 1; }
+usage() { echo "Usage: ./SparkLeBLASTSearch.sh -q /path/to/query -db /path/to/formatted/db -gop gap_open -gex gap_extend -nalign num_alignments -m master_address (launches new Spark cluster if null) -w <num_workers> -time <Time in integer minutes> -h hostname_prefix -d /path/to/logs/dir (default current dir)" 1>&2; exit 1; }
 
 
 while [[ $# -gt 0 ]]; do
@@ -33,6 +33,11 @@ while [[ $# -gt 0 ]]; do
       ;;
     -nalign|--numalignments)
       NUM_ALIGNMENTS="$2"
+      shift # past argument
+      shift # past value
+      ;;
+    -m|--masteraddress)
+      MASTER_ADDRESS="$2"
       shift # past argument
       shift # past value
       ;;
@@ -126,37 +131,57 @@ echo "HOSTNAME_PREFIX  = ${HOSTNAME_PREFIX}"
 # Load JAVA
 module load Java/11.0.2
 
-# Launch Spark Cluster using spark-slurm
-CLUTER_ID=$(${SPARK_SLURM_PATH}/spark start -t ${TIME} ${WORKERS} | awk '{print $6}')
-CLUSTED_DIR="${LOGS_DIR}/x/${CLUTER_ID}"
-echo ${CLUSTED_DIR}
+if [ -z ${MASTER_ADDRESS} ]; then
+    # Launch Spark Cluster using spark-slurm
+    CLUTER_ID=$(${SPARK_SLURM_PATH}/spark start -t ${TIME} ${WORKERS} | awk '{print $6}')
+    CLUSTED_DIR="${LOGS_DIR}/x/${CLUTER_ID}"
+    echo ${CLUSTED_DIR}
 
-# Wait for cluster directory
-while [ ! -d ${CLUSTED_DIR} ]; do
-   sleep 1;
-done
+    # Wait for cluster directory
+    while [ ! -d ${CLUSTED_DIR} ]; do
+       sleep 1;
+    done
 
-# Get SLURM Job ID
-SLURM_JOB_ID=$(cat ${CLUSTED_DIR}/slurm_job_id | awk '{print $4}')
-SLURM_JOB_DIR=${LOGS_DIR}/${SLURM_JOB_ID}
-echo ${SLURM_JOB_DIR}
+    # Get SLURM Job ID
+    SLURM_JOB_ID=$(cat ${CLUSTED_DIR}/slurm_job_id | awk '{print $4}')
+    SLURM_JOB_DIR=${LOGS_DIR}/${SLURM_JOB_ID}
+    echo ${SLURM_JOB_DIR}
 
-# Wait for job directory
-while [ ! -d ${SLURM_JOB_DIR} ]; do
-   sleep 1;
-done
+    # Wait for job to be running
+    echo "Waiting for SLURM job to start"
+    status=$(squeue -j ${SLURM_JOB_ID} | tail -n 1 | awk '{print $5}')
+    while [[ "${status}" != "R"  ]]; do
+      sleep 1;
+      status=$(squeue -j ${SLURM_JOB_ID} | tail -n 1 | awk '{print $5}');
+    done
+    echo "SLURM job now running"
 
-# Get Spark Master Hostname and construct Master Address
-SPARK_MASTER_HOSTNAME=$(ls ${SLURM_JOB_DIR}/logs | grep -o "${HOSTNAME_PREFIX}[0-9]*" | head -n 1)
-echo ${SPARK_MASTER_HOSTNAME}
-SPARK_MASTER_ADDRESS="spark://${SPARK_MASTER_HOSTNAME}:7077"
-echo ${SPARK_MASTER_ADDRESS}
+    # Wait for job directory
+    while [ ! -d ${SLURM_JOB_DIR} ]; do
+       sleep 1;
+    done
+
+    # Get Spark Master Hostname and construct Master Address
+    SPARK_MASTER_HOSTNAME=$(ls ${SLURM_JOB_DIR}/logs | grep -o "${HOSTNAME_PREFIX}[0-9]*" | head -n 1)
+    echo ${SPARK_MASTER_HOSTNAME}
+    SPARK_MASTER_ADDRESS="spark://${SPARK_MASTER_HOSTNAME}:7077"
+    echo ${SPARK_MASTER_ADDRESS}
+else
+    SPARK_MASTER_ADDRESS=${MASTER_ADDRESS}
+fi
 
 # Partitions IDs Prefix
 partitionsIDs="_partitionsIDs"
 dbLen=$(head -n 1 "${DATABASE}/database.dbs")
 numSeq=$(tail -n 1 "${DATABASE}/database.dbs")
-outfmt=8 # Hard coded for now since only tabular is currently supported
+outfmt=6 # Hard coded for now since only tabular is currently supported
 
 # Submit Spark job to perform blast search
-/home/karimy/spark-2.2.0-bin-hadoop2.6/bin/spark-submit --master ${SPARK_MASTER_ADDRESS} --verbose --conf "spark.local.dir=/home/karimy/tmpSpark" --conf "spark.network.timeout=3600" --conf "spark.driver.extraJavaOptions=-XX:MaxHeapSize=120g" --conf "spark.worker.extraJavaOptions=-XX:MaxHeapSize=100g" --conf "spark.driver.memory=4g" --conf "spark.executor.memory=4g" --class SparkLeBLASTSearch target/scala-2.11/simple-project_2.11-1.0.jar "${DATABASE}${partitionsIDs}" ${QUERY} ${DATABASE} "/home/karimy/SparkLeBLAST/blastSearchScript" ${dbLen} ${numSeq} ${GAP_OPEN} ${GAP_EXTEND} ${outfmt} ${NUM_ALIGNMENTS}
+echo "Running Blast Search"
+/home/karimy/spark-2.2.0-bin-hadoop2.6/bin/spark-submit --master ${SPARK_MASTER_ADDRESS} --verbose --conf "spark.local.dir=/home/karimy/tmpSpark" --conf "spark.network.timeout=3600" --conf "spark.driver.extraJavaOptions=-XX:MaxHeapSize=120g" --conf "spark.worker.extraJavaOptions=-XX:MaxHeapSize=100g" --conf "spark.driver.memory=4g" --conf "spark.executor.memory=4g" --class SparkLeBLASTSearch target/scala-2.11/simple-project_2.11-1.0.jar "${DATABASE}${partitionsIDs}" ${QUERY} ${DATABASE} "/home/karimy/SparkLeBLAST/blastSearchScript_2.12_blastn" ${dbLen} ${numSeq} ${GAP_OPEN} ${GAP_EXTEND} ${outfmt} ${NUM_ALIGNMENTS}
+echo "Blast Search Done"
+
+HOST_NUMBER=$(echo ${SPARK_MASTER_ADDRESS} | grep -o "[0-9]*" | head -n 1)
+echo ${HOST_NUMBER}
+JOB_ID=$(squeue -u ${USER} | grep ${HOST_NUMBER} | awk '{print $1}')
+scancel ${JOB_ID}
