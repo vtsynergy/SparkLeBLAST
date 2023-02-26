@@ -19,7 +19,8 @@ For usage on an HPC cluster with SLURM workload manager (details below), there a
 ## Usage
 ### HPC Cluster With SLURM Workload Manager
 1) Partitioning and formatting a BLAST database:
-   a) 
+
+   a)  
 ```shell script 
      export NCBI_BLAST_PATH=</path/to/ncbi_blast/binaries>
 ```
