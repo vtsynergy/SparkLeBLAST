@@ -9,7 +9,7 @@
 # dbName="/work/cascades/karimy/blastDB/nr_1000_indexed"
 # /home/karimy/spark-2.2.0-bin-hadoop2.6/bin/spark-submit --conf "spark.local.dir=/home/karimy/tmpSpark" --conf "spark.network.timeout=3600" --conf "spark.driver.extraJavaOptions=-XX:MaxHeapSize=120g" --conf "spark.worker.extraJavaOptions=-XX:MaxHeapSize=100g" --master $masterAddress --driver-memory 100g --executor-memory 100g --class MakeDB target/scala-2.11/simple-project_2.11-1.0.jar $numPartitions $dbPath "/home/karimy/SparkLeBLAST/formatdbScript" $dbName;
 
-usage() { echo "Usage: ./SparkLeMakeDB.sh -i /path/to/raw/db -t /path/to/output/db -dbtype (prot or nucl) -o parse_options (T or F) -p <num_partitions> -w <num_workers> -time <Time in integer minutes> -h hostname_prefix -d /path/to/logs/dir (default current dir)" 1>&2; exit 1; }
+usage() { echo "Usage: ./SparkLeMakeDB.sh -i /path/to/raw/db -t /path/to/output/db -q /path/to/query -dbtype (prot or nucl) -o parse_options (T or F) -p <num_partitions> -w <num_workers> -time <Time in integer minutes> -h hostname_prefix -d /path/to/logs/dir (default current dir)" 1>&2; exit 1; }
 
 #!/bin/bash
 
@@ -24,6 +24,11 @@ while [[ $# -gt 0 ]]; do
       ;;
     -t|--title)
       OUTPUT_PATH="$2"
+      shift # past argument
+      shift # past value
+      ;;
+    -q|--query)
+      QUERY="$2"
       shift # past argument
       shift # past value
       ;;
@@ -70,7 +75,7 @@ done
 
 # Required Args check:
 # --------------------
-if [ -z "${INPUT_PATH}" ] || [ -z "${OUTPUT_PATH}" ] || [ -z ${HOSTNAME_PREFIX} ]; then
+if [ -z "${INPUT_PATH}" ] || [ -z "${OUTPUT_PATH}" ] || [ -z ${HOSTNAME_PREFIX} ] || [ -z ${QUERY} ]; then
     usage
 fi
 
@@ -123,7 +128,7 @@ echo "HOSTNAME_PREFIX  = ${HOSTNAME_PREFIX}"
 module load Java/11.0.2
 
 # Launch Spark Cluster using spark-slurm
-CLUTER_ID=$(${SPARK_SLURM_PATH}/spark start -t ${TIME} ${WORKERS} | awk '{print $6}')
+CLUTER_ID=$(${SPARK_SLURM_PATH} start -t ${TIME} ${WORKERS} | awk '{print $6}')
 CLUSTED_DIR="${LOGS_DIR}/x/${CLUTER_ID}"
 echo ${CLUSTED_DIR}
 
@@ -170,4 +175,42 @@ SPARK_MASTER_ADDRESS="spark://${SPARK_MASTER_HOSTNAME}:7077"
 echo ${SPARK_MASTER_ADDRESS}
 
 # Submit Spark job to format the BLAST DB
-/home/karimy/spark-2.2.0-bin-hadoop2.6/bin/spark-submit --master ${SPARK_MASTER_ADDRESS} --verbose --conf "spark.local.dir=/home/karimy/tmpSpark" --conf "spark.network.timeout=3600" --conf "spark.driver.extraJavaOptions=-XX:MaxHeapSize=220g" --conf "spark.worker.extraJavaOptions=-XX:MaxHeapSize=220g" --conf "spark.driver.memory=192g" --conf "spark.executor.memory=192g" --executor-cores 1 --class SparkLeMakeDB target/scala-2.11/simple-project_2.11-1.0.jar ${PARTITIONS} ${INPUT_PATH} "/home/karimy/SparkLeBLAST/formatdbScript_2.12" ${OUTPUT_PATH} ${DB_TYPE};
+echo "Formatting BLAST DB"
+/home/karimy/spark-2.2.0-bin-hadoop2.6/bin/spark-submit --master ${SPARK_MASTER_ADDRESS} --verbose --conf "spark.local.dir=/home/karimy/tmpSpark" --conf "spark.network.timeout=3600" --conf "spark.driver.extraJavaOptions=-XX:MaxHeapSize=220g" --conf "spark.worker.extraJavaOptions=-XX:MaxHeapSize=220g" --conf "spark.driver.memory=192g" --conf "spark.executor.memory=192g" --executor-cores 1 --class SparkLeMakeDB target/scala-2.11/simple-project_2.11-1.0.jar ${PARTITIONS} ${INPUT_PATH} "/home/karimy/SparkLeBLAST/formatdbScript_2.12" ${OUTPUT_PATH} ${DB_TYPE} &> output_makedb_${WORKERS};
+echo "DB Formatting Done"
+
+# Copy to VAST
+# time cp -r /localscratch
+
+# Partitions IDs Prefix
+DATABASE=${OUTPUT_PATH}
+partitionsIDs="_partitionsIDs"
+dbLen=$(head -n 1 "${DATABASE}/database.dbs")
+numSeq=$(tail -n 1 "${DATABASE}/database.dbs")
+outfmt=6 # Hard coded for now since only tabular is currently supported
+
+# Temp variables (In the future, all BLAST parameters will be passed via the blastSearchScript script
+GAP_OPEN=10
+GAP_EXTEND=1
+NUM_ALIGNMENTS=10
+
+
+# Submit Spark job to perform blast search
+echo "Starting BLAST Search"
+/home/karimy/spark-2.2.0-bin-hadoop2.6/bin/spark-submit --master ${SPARK_MASTER_ADDRESS} --verbose --conf "spark.local.dir=/home/karimy/tmpSpark" --conf "spark.network.timeout=3600" --conf "spark.driver.extraJavaOptions=-XX:MaxHeapSize=120g" --conf "spark.worker.extraJavaOptions=-XX:MaxHeapSize=100g" --conf "spark.driver.memory=4g" --conf "spark.executor.memory=4g" --class SparkLeBLASTSearch target/scala-2.11/simple-project_2.11-1.0.jar "${DATABASE}${partitionsIDs}" ${QUERY} ${DATABASE} "/home/karimy/SparkLeBLAST/blastSearchScript_2.12_blastn" ${dbLen} ${numSeq} ${GAP_OPEN} ${GAP_EXTEND} ${outfmt} ${NUM_ALIGNMENTS} &> output_balst_search_${WORKERS}
+echo "BLAST Search Done"
+
+HOST_NUMBER=$(echo ${SPARK_MASTER_ADDRESS} | grep -o "[0-9]*" | head -n 1)
+echo ${HOST_NUMBER}
+JOB_ID=$(squeue -u ${USER} | grep ${HOST_NUMBER} | awk '{print $1}')
+scancel ${JOB_ID}
+
+# Remove partitions
+rm -rf ${DATABASE}
+rm -rf ${DATABASE}_formatting_logs
+rm -rf ${DATABASE}_partitionsIDs
+
+# Move final output
+# mv finalOutput /fastscratch/karimy/finalOutput_${WORKERS}
+# mv finalOutputByQuery /fastscratch/karimy/finalOutputByQuery_${WORKERS}
+# mv finalOutputSorted /fastscratch/karimy/finalOutputSorted_${WORKERS}

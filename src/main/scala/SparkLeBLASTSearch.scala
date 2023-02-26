@@ -47,14 +47,14 @@ object SparkLeBLASTSearch {
     script = script + " " + queryPath + " " + dbPath + " " + dbLength.toString + " " + gapOpen +
                  " " + gapExtend + " " + inputFormat + " " + alignmentsPerQuery;
 
-    val resultUnsorted2 = partitions.pipe(script);//.saveAsTextFile("finalOutput");
+    val resultUnsorted2 = partitions.pipe(script);//.saveAsTextFile("/fastscratch/karimy/finalOutput");
    
-    resultUnsorted2.saveAsTextFile("finalOutput");
+    resultUnsorted2.saveAsTextFile("/fastscratch/karimy/finalOutput");
 
     if ( inputFormat == 0 ){
     
       conf.set("textinputformat.record.delimiter", "Query=")
-      val resultUnsorted = sc.newAPIHadoopFile("finalOutput", classOf[TextInputFormat],
+      val resultUnsorted = sc.newAPIHadoopFile("/fastscratch/karimy/finalOutput", classOf[TextInputFormat],
                                               classOf[LongWritable], classOf[Text],conf)
 
     
@@ -64,7 +64,7 @@ object SparkLeBLASTSearch {
                                   .map{ segment => (segment.split("\n")(0),"Query=" + segment) }
                                   .reduceByKey(_+"\n"+_)
                                   .repartition(resultUnsorted2.partitions.size);
-      resultByQuery.saveAsTextFile("finalOutputByQuery");
+      resultByQuery.saveAsTextFile("/fastscratch/karimy/finalOutputByQuery");
       val resultSplit = resultByQuery.mapValues( line => line.split("\n") );
 
       val resultSplit2 = resultByQuery.mapValues( line => line.split("\n>") );
@@ -80,7 +80,7 @@ object SparkLeBLASTSearch {
                                         && (!line.contains(">")) && (!line.contains("Query"))
                                         && (!line.contains("No hits found"))))
                            .mapValues(_.map(line => (line,line.split(" +")(line.split(" +").length-2).toDouble.toInt)).sortBy(-_._2));
-        hsps.map{ case (k,v) => (k,v.mkString("\n")) }.saveAsTextFile("finalOutputFiltered");
+        hsps.map{ case (k,v) => (k,v.mkString("\n")) }.saveAsTextFile("/fastscratch/karimy/finalOutputFiltered");
 
         val hspsExpanded = resultSplit2.mapValues(_.filter( partition => partition.contains("Score = ") && 
                                               !partition.contains("Searching...") )
@@ -89,24 +89,24 @@ object SparkLeBLASTSearch {
                                               .sortBy(-_._2)
                                               .map{ case ( k , v ) => k })
                                               .map{ case (k,v) => (k,v.mkString("\n")) }
-                                              .saveAsTextFile("finalOutputExpanded");   
+                                              .saveAsTextFile("/fastscratch/karimy/finalOutputExpanded");   
       } 
     }
-    else if (inputFormat == 8){
+    else if (inputFormat == 6){
         // output format 8 merging logic goes here
         conf.set("textinputformat.record.delimiter", "\n")
-        val resultUnsorted = sc.newAPIHadoopFile("finalOutput", classOf[TextInputFormat],
+        val resultUnsorted = sc.newAPIHadoopFile("/fastscratch/karimy/finalOutput", classOf[TextInputFormat],
                                               classOf[LongWritable], classOf[Text],conf)
         val resultByQuery = resultUnsorted.map{ case (k , v) => v.toString }
                                   .filter(line => line.split("\t").length > 2)
 				  .map{ segment => (segment.split("\t")(0),"" + segment) }
                                   .reduceByKey(_+"\n"+_)
                                   .repartition(resultUnsorted2.partitions.size);
-        resultByQuery.saveAsTextFile("finalOutputByQuery");
+        resultByQuery.saveAsTextFile("/fastscratch/karimy/finalOutputByQuery");
         val resultSorted = resultByQuery.mapValues( line => line.split("\n"))
                                         .mapValues(
         _.map(result => (result,result.split("\t")(result.split("\t").length - 2).toDouble)).sortBy(_._2).take(alignmentsPerQuery));
-        resultSorted.map{ case (k,v) => v.mkString("\n") }.saveAsTextFile("finalOutputSorted");
+        resultSorted.map{ case (k,v) => v.mkString("\n") }.saveAsTextFile("/fastscratch/karimy/finalOutputSorted");
 
     }
     
