@@ -24,10 +24,12 @@ For usage on an HPC cluster with SLURM workload manager (details below), there a
 ```shell script 
      export NCBI_BLAST_PATH=</path/to/ncbi_blast/binaries>
 ```
+
    b) 
 ```shell script
     ./SparkLeMakeDB -p <num_partitions> -time <job_time_integer_minutes> -i <input_DB_path> -t <output_partitions_base_path>
 ``` 
+
 2) Running BLAST search:
 ```shell script
    ./SparkLeBLASTSearch.sh -p <num_partitions> -time <job_time_integer_minutes> -q <query_file_path> -db <database_partitions_base_path> -d <spark_logs_path>
