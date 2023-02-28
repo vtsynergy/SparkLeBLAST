@@ -32,10 +32,8 @@ object SparkLeBLASTSearch {
     var script = args(3)
     val dbLength: Long = args(4).toLong
     val numSeq: Long = args(5).toLong
-    val gapOpen = args(6)
-    val gapExtend = args(7)
-    val inputFormat = args(8).toInt
-    val alignmentsPerQuery = args(9).toInt
+    val outputFormat = args(6).toInt
+    val alignmentsPerQuery = args(7).toInt
 
     /* Get partitions names */
     val partitionNames = sc.newAPIHadoopFile(partitionsNames, classOf[TextInputFormat], 
@@ -44,14 +42,13 @@ object SparkLeBLASTSearch {
     val partitions = partitionNames.map{ case(k,v) => v};
     
     /* Set arguments for NCBI BLAST */
-    script = script + " " + queryPath + " " + dbPath + " " + dbLength.toString + " " + gapOpen +
-                 " " + gapExtend + " " + inputFormat + " " + alignmentsPerQuery;
+    script = script + " " + queryPath + " " + dbPath + " " + dbLength.toString;
 
     val resultUnsorted2 = partitions.pipe(script);//.saveAsTextFile("/fastscratch/karimy/finalOutput");
    
     resultUnsorted2.saveAsTextFile("/fastscratch/karimy/finalOutput");
 
-    if ( inputFormat == 0 ){
+    if ( outputFormat == 0 ){
     
       conf.set("textinputformat.record.delimiter", "Query=")
       val resultUnsorted = sc.newAPIHadoopFile("/fastscratch/karimy/finalOutput", classOf[TextInputFormat],
@@ -92,7 +89,7 @@ object SparkLeBLASTSearch {
                                               .saveAsTextFile("/fastscratch/karimy/finalOutputExpanded");   
       } 
     }
-    else if (inputFormat == 6){
+    else if (outputFormat == 6){
         // output format 8 merging logic goes here
         conf.set("textinputformat.record.delimiter", "\n")
         val resultUnsorted = sc.newAPIHadoopFile("/fastscratch/karimy/finalOutput", classOf[TextInputFormat],

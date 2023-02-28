@@ -1,4 +1,4 @@
 #!/bin/bash
 IFS= read -r dbname;
 dbRootPath=$1
-/home/karimy/mpiblast-1.6.0/ncbi/bin/formatdb -i $dbRootPath/$dbname -o T;
+${NCBI_BLAST_PATH}/makeblastdb -in $dbRootPath/$dbname $(cat ${SLB_WORKDIR}/blast_makedb_args.txt);
