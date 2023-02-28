@@ -1,14 +1,5 @@
 #!/bin/bash
 
-
-# module load jdk
-
-# masterAddress="spark://ca015.ca.arc.internal:7077"
-# dbPath="/work/cascades/karimy/blastDB/nr"
-# numPartitions=1000
-# dbName="/work/cascades/karimy/blastDB/nr_1000_indexed"
-# /home/karimy/spark-2.2.0-bin-hadoop2.6/bin/spark-submit --conf "spark.local.dir=/home/karimy/tmpSpark" --conf "spark.network.timeout=3600" --conf "spark.driver.extraJavaOptions=-XX:MaxHeapSize=120g" --conf "spark.worker.extraJavaOptions=-XX:MaxHeapSize=100g" --master $masterAddress --driver-memory 100g --executor-memory 100g --class MakeDB target/scala-2.11/simple-project_2.11-1.0.jar $numPartitions $dbPath "/home/karimy/SparkLeBLAST/formatdbScript" $dbName;
-
 usage() { echo "Usage: ./SparkLeMakeDB.sh -i /path/to/raw/db -t /path/to/output/db -dbtype (prot or nucl) -o parse_options (T or F) -p <num_partitions> -w <num_workers> -time <Time in integer minutes> -h hostname_prefix -d /path/to/logs/dir (default current dir)" 1>&2; exit 1; }
 
 #!/bin/bash
@@ -74,6 +65,11 @@ if [ -z "${INPUT_PATH}" ] || [ -z "${OUTPUT_PATH}" ] || [ -z ${HOSTNAME_PREFIX} 
     usage
 fi
 
+if [ -d "${OUTPUT_PATH}" ]; then
+    echo "Error: Directory ${OUTPUT_PATH} Already Exists"
+    exit 1
+fi
+
 # Defaults
 # --------
 
@@ -123,7 +119,7 @@ echo "HOSTNAME_PREFIX  = ${HOSTNAME_PREFIX}"
 module load Java/11.0.2
 
 # Launch Spark Cluster using spark-slurm
-CLUTER_ID=$(${SPARK_SLURM_PATH}/spark start -t ${TIME} ${WORKERS} | awk '{print $6}')
+CLUTER_ID=$(${SPARK_SLURM_PATH} start -t ${TIME} ${WORKERS} | awk '{print $6}')
 CLUSTED_DIR="${LOGS_DIR}/x/${CLUTER_ID}"
 echo ${CLUSTED_DIR}
 
@@ -170,4 +166,10 @@ SPARK_MASTER_ADDRESS="spark://${SPARK_MASTER_HOSTNAME}:7077"
 echo ${SPARK_MASTER_ADDRESS}
 
 # Submit Spark job to format the BLAST DB
-/home/karimy/spark-2.2.0-bin-hadoop2.6/bin/spark-submit --master ${SPARK_MASTER_ADDRESS} --verbose --conf "spark.local.dir=/home/karimy/tmpSpark" --conf "spark.network.timeout=3600" --conf "spark.driver.extraJavaOptions=-XX:MaxHeapSize=220g" --conf "spark.worker.extraJavaOptions=-XX:MaxHeapSize=220g" --conf "spark.driver.memory=192g" --conf "spark.executor.memory=192g" --executor-cores 1 --class SparkLeMakeDB target/scala-2.11/simple-project_2.11-1.0.jar ${PARTITIONS} ${INPUT_PATH} "/home/karimy/SparkLeBLAST/formatdbScript_2.12" ${OUTPUT_PATH} ${DB_TYPE};
+${SPARK_HOME}/bin/spark-submit --master ${SPARK_MASTER_ADDRESS} --verbose --executor-cores 1 --class SparkLeMakeDB target/scala-2.11/simple-project_2.11-1.0.jar ${PARTITIONS} ${INPUT_PATH} "${SLB_WORKDIR}/formatdbScript" ${OUTPUT_PATH} ${DB_TYPE};
+
+# Cancel SLURM Job
+HOST_NUMBER=$(echo ${SPARK_MASTER_ADDRESS} | grep -o "[0-9]*" | head -n 1)
+echo ${HOST_NUMBER}
+JOB_ID=$(squeue -u ${USER} | grep ${HOST_NUMBER} | awk '{print $1}')
+scancel ${JOB_ID}
