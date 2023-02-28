@@ -2,6 +2,9 @@
 Scalable Parallelization of BLAST Sequence Alignment Using Spark
 
 ## Dependencies
+### Scala Build Tool
+Used to build SparkLeBLAST (https://www.scala-sbt.org/)
+
 ### Spark
 We conducted our experiments using Spark v2.2.0. (https://archive.apache.org/dist/spark/spark-2.2.0/)
 
@@ -20,8 +23,10 @@ For usage on an HPC cluster with SLURM workload manager (details below), there a
 ### HPC Cluster With SLURM Workload Manager
 1) Environment variables
 ```shell script
+    export SPARK_HOME=<path/to/installed/spark/directory> # Where pre-built Spark was downloaded from dependencies abpve 
     export SPARK_SLURM_PATH=</path/to/spark-slurm> # if using spark-slurm 
     export NCBI_BLAST_PATH=</path/to/ncbi_blast/binaries>
+    export SLB_WORKDIR=$(pwd) # Path to SparkLeBLAST root directory
 ```
 
 2) Partitioning and formatting a BLAST database:
