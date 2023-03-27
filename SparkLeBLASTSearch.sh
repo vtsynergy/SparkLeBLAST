@@ -54,8 +54,13 @@ done
 
 # Required Args check:
 # --------------------
-if [ -z "${QUERY}" ] || [ -z "${DATABASE}" ] || [ -z ${HOSTNAME_PREFIX} ]; then
+if [ -z "${QUERY}" ] || [ -z "${DATABASE}" ]; then
     usage
+fi
+
+if [ -z ${HOSTNAME_PREFIX} ] && [ -z ${MASTER_ADDRESS} ]; then
+    echo "Error: Please specify either hostname prefix using --hostnameprefix or Spark master address using --masteraddress"
+    exit 1
 fi
 
 # Defaults
@@ -78,8 +83,8 @@ fi
 # Args correctness checks
 # -----------------------
 
-if [ -z ${SPARK_SLURM_PATH} ]; then
-    echo "Error: Please set SPARK_SLURM_PATH env. variable"
+if [ -z ${SPARK_SLURM_PATH} ] && [ -z ${MASTER_ADDRESS}]; then
+    echo "Error: Please set SPARK_SLURM_PATH env. variable or --masteraddress if a Spark cluster is already up"
     exit 1
 fi
 
@@ -153,7 +158,9 @@ echo "Running Blast Search"
 ${SPARK_HOME}/bin/spark-submit --master ${SPARK_MASTER_ADDRESS} --verbose --class SparkLeBLASTSearch target/scala-2.11/simple-project_2.11-1.0.jar "${DATABASE}${partitionsIDs}" ${QUERY} ${DATABASE} "${SLB_WORKDIR}/blastSearchScript" ${dbLen} ${numSeq} ${outfmt} ${max_target_seqs}
 echo "Blast Search Done"
 
-HOST_NUMBER=$(echo ${SPARK_MASTER_ADDRESS} | grep -o "[0-9]*" | head -n 1)
-echo ${HOST_NUMBER}
-JOB_ID=$(squeue -u ${USER} | grep ${HOST_NUMBER} | awk '{print $1}')
-scancel ${JOB_ID}
+if [ ! -z ${SPARK_SLURM_PATH} ]; then
+    HOST_NUMBER=$(echo ${SPARK_MASTER_ADDRESS} | grep -o "[0-9]*" | head -n 1)
+    echo ${HOST_NUMBER}
+    JOB_ID=$(squeue -u ${USER} | grep ${HOST_NUMBER} | awk '{print $1}')
+    scancel ${JOB_ID}
+fi
