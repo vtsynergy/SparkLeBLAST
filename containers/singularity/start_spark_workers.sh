@@ -1,18 +1,16 @@
 #!/bin/bash
 
-master_node=${1}
 
 # echo $(hostname)
 # echo ${master_node}
 
-if [[ $(hostname) != "${master_node}" ]]; then
+# if [[ $(hostname) != "${master_node}" ]]; then
     while [ ! -e "master_success" ]; do
         sleep 1
     done
-
+    master_node=$(head -n 1 master_success)
     singularity instance start \
        --bind $(mktemp -d run/`hostname`_XXXX):/run \
-       --bind dropbear/:/etc/dropbear  \
        --bind log/:/opt/spark-2.2.0-bin-hadoop2.6/logs \
        --bind work/:/opt/spark-2.2.0-bin-hadoop2.6/work \
        sparkleblast_latest.sif spark-process
@@ -24,4 +22,4 @@ if [[ $(hostname) != "${master_node}" ]]; then
     while [ -e "master_success" ]; do
         sleep 1
     done
-fi
+# fi

@@ -1,11 +1,10 @@
 #!/bin/bash
 
 
-master_node=${1}
+master_node=$(hostname)
 
 singularity instance start \
        --bind $(mktemp -d run/`hostname`_XXXX):/run \
-       --bind dropbear/:/etc/dropbear  \
        --bind log/:/opt/spark-2.2.0-bin-hadoop2.6/logs \
        --bind work/:/opt/spark-2.2.0-bin-hadoop2.6/work \
        sparkleblast_latest.sif spark-process
@@ -15,5 +14,5 @@ singularity exec instance://spark-process /opt/spark-2.2.0-bin-hadoop2.6/sbin/st
 
 sleep 5
 
-echo "MASTER_CREATED" > master_success
+echo $(hostname) > master_success
 

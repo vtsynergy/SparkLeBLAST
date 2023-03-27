@@ -17,10 +17,22 @@ Use a job scheduler (e.g., SLURM) to allocate a group of nodes.
 Select a node from the allocated nodes in previous step to be the master node. 
 Provide the master node hostname to the script below
 ```shell script
-    ./start_spark_cluster.sh <master_node_hostname> <number_of_workers>
+    mpirun -np <num_nodes> ./start_spark_cluster.sh
 ```
 
-## Download Test Query and Database
+## Verify the Spark Cluster is Working
+```shell script
+    singularity exec sparkleblast_latest.sif /opt/spark-2.2.0-bin-hadoop2.6/bin/spark-shell --master spark://<master_hostname>:7077
+```
+The above command should drop a Spark shell and print the master address as provide above
+
+## Stop Spark Cluster
+```shell script
+    mpirun -np <num_nodes> ./stop_spark_cluster.sh                   
+```
+
+## Download Test Query and Database:
+coming soon...
 ### Query file
 ### Database
 

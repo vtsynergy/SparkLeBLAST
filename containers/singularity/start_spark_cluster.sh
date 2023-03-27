@@ -1,10 +1,9 @@
 #!/bin/bash
 
-master_node=${1}
-num_workers=${2}
 
-./start_spark_master.sh ${master_node} &
+if [ ${PMIX_RANK} -eq "0" ]; then
+    ./start_spark_master.sh &
+else
+    ./start_spark_workers.sh &
+fi
 
-wait
-
-mpirun -np ${num_workers} ./start_spark_workers.sh ${master_node} &
