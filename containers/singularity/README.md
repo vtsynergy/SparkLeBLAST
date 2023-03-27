@@ -15,7 +15,7 @@ Use a job scheduler (e.g., SLURM) to allocate a group of nodes.
 
 ## Start a Spark Cluster
 ```shell script
-    mpirun -np <num_nodes> ./start_spark_cluster.sh
+    mpirun -np <num_nodes> ./start_spark_cluster.sh & # The ampersand is important to throw this to the background
 ```
 
 ## Verify the Spark Cluster is Working
