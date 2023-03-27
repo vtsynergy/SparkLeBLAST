@@ -105,7 +105,7 @@ fi
 # Args correctness checks
 # -----------------------
 
-if [ -z ${SPARK_SLURM_PATH} ] && [ -z ${MASTER_ADDRESS}]; then
+if [ -z ${SPARK_SLURM_PATH} ] && [ -z ${MASTER_ADDRESS} ]; then
     echo "Error: Please set SPARK_SLURM_PATH env. variable or --masteraddress if a Spark cluster is already up"
     exit 1
 fi
