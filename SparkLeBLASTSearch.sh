@@ -59,7 +59,7 @@ if [ -z "${QUERY}" ] || [ -z "${DATABASE}" ]; then
 fi
 
 if [ -z ${HOSTNAME_PREFIX} ] && [ -z ${MASTER_ADDRESS} ]; then
-    echo "Error: Please specify either hostname prefix using --hostnameprefix or Spark master address using --masteraddress"
+    echo "Error: Please specify either hostname prefix using --hostnameprefix or a Spark master address using --masteraddress"
     exit 1
 fi
 
