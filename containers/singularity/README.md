@@ -7,7 +7,7 @@
 
 ## Pull container image and create logging directories
 ```shell script
-    ./init.sh
+    ./init.sh # This will create 3 directories (log, work, and run)
 ```
 
 ## Allocate Resources
