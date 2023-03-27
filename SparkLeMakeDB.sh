@@ -124,21 +124,22 @@ echo "WORKERS          = ${WORKERS}"
 echo "Spark SLURM PATH = ${SPARK_SLURM_PATH}"
 echo "Job Time         = ${TIME}"
 echo "HOSTNAME_PREFIX  = ${HOSTNAME_PREFIX}"
+echo "MASTER_ADDRESS   = ${MASTER_ADDRESS}"
 
 # Load JAVA
 module load Java/11.0.2
 
-# Launch Spark Cluster using spark-slurm
-CLUTER_ID=$(${SPARK_SLURM_PATH} start -t ${TIME} ${WORKERS} | awk '{print $6}')
-CLUSTED_DIR="${LOGS_DIR}/x/${CLUTER_ID}"
-echo ${CLUSTED_DIR}
-
-# Wait for cluster directory
-while [ ! -d ${CLUSTED_DIR} ]; do
-   sleep 1;
-done
-
 if [ -z ${MASTER_ADDRESS} ]; then
+  # Launch Spark Cluster using spark-slurm
+  CLUTER_ID=$(${SPARK_SLURM_PATH} start -t ${TIME} ${WORKERS} | awk '{print $6}')
+  CLUSTED_DIR="${LOGS_DIR}/x/${CLUTER_ID}"
+  echo ${CLUSTED_DIR}
+
+  # Wait for cluster directory
+  while [ ! -d ${CLUSTED_DIR} ]; do
+     sleep 1;
+  done
+
   # Get SLURM Job ID
   SLURM_JOB_ID=$(cat ${CLUSTED_DIR}/slurm_job_id | awk '{print $4}')
   SLURM_JOB_DIR=${LOGS_DIR}/${SLURM_JOB_ID}
