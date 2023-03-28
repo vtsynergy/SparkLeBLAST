@@ -7,17 +7,15 @@
 
 ## Pull container image and create logging directories
 ```shell script
-    ./init.sh
+    ./init.sh # This will create 3 directories (log, work, and run)
 ```
 
 ## Allocate Resources
 Use a job scheduler (e.g., SLURM) to allocate a group of nodes. 
 
 ## Start a Spark Cluster
-Select a node from the allocated nodes in previous step to be the master node. 
-Provide the master node hostname to the script below
 ```shell script
-    mpirun -np <num_nodes> ./start_spark_cluster.sh
+    mpirun -np <num_nodes> ./start_spark_cluster.sh & # The ampersand is important to throw this to the background
 ```
 
 ## Verify the Spark Cluster is Working
