@@ -10,7 +10,7 @@ singularity instance start \
        sparkleblast_latest.sif spark-process
 
 echo "starting master on node: ${master_node}"
-singularity exec instance://spark-process /opt/spark-2.2.0-bin-hadoop2.6/sbin/start-master.sh
+singularity exec --env SPARK_MASTER_HOST=${master_node} instance://spark-process /opt/spark-2.2.0-bin-hadoop2.6/sbin/start-master.sh
 
 sleep 5
 
