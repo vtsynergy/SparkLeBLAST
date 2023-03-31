@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-master_node=$(hostname)
+master_node=$(hostname -I | awk '{print $1}')
 
 singularity instance start \
        --bind $(mktemp -d run/`hostname`_XXXX):/run \
@@ -14,5 +14,5 @@ singularity exec --env SPARK_MASTER_HOST=${master_node} instance://spark-process
 
 sleep 5
 
-echo $(hostname) > master_success
+echo ${master_node} > master_success
 
