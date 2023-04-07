@@ -42,6 +42,22 @@ For usage on an HPC cluster with SLURM workload manager (details below), there a
 ### Custom Spark Cluster
 A version of launch scripts without SLURM will be available soon
 
+## Data
+### Small Data Samples for Testing
+1) Query:
+   https://raw.githubusercontent.com/sparkblastproject/v2/master/bacteria/Galaxy25-%5BGeobacter_metallireducens.fasta%5D.fasta
+
+2) Database:
+   https://ftp.ncbi.nlm.nih.gov/blast/db/FASTA/swissprot.gz
+
+### COVID-19 Genomic Diversity Analysis
+1) Preprocessed Query:
+   Compressed file could be found in this repo under covdiv_sample
+
+2) Database (Compressed Raw Size of 144GB):
+   https://ftp.ncbi.nlm.nih.gov/blast/db/FASTA/nr.gz
+
+
 ## Publication
 Youssef, Karim, and Wu-chun Feng. "SparkLeBLAST: Scalable Parallelization of BLAST Sequence Alignment Using Spark." 2020 20th IEEE/ACM International Symposium on Cluster, Cloud and Internet Computing (CCGRID). IEEE, 2020.
 
