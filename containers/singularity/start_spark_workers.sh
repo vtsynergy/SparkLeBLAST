@@ -13,6 +13,7 @@
        --bind $(mktemp -d run/`hostname`_XXXX):/run \
        --bind log/:/opt/spark-2.2.0-bin-hadoop2.6/logs \
        --bind work/:/opt/spark-2.2.0-bin-hadoop2.6/work \
+       --bind hosts:/etc/hosts \
        sparkleblast_latest.sif spark-process
     sleep 5
     master_url="spark://${master_node}:7077"
