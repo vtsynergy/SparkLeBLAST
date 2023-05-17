@@ -20,7 +20,7 @@ Use a job scheduler (e.g., SLURM) to allocate a group of nodes.
 
 ## Verify the Spark Cluster is Working
 ```shell script
-    singularity exec sparkleblast_latest.sif /opt/spark-2.2.0-bin-hadoop2.6/bin/spark-shell --master spark://<master_hostname>:7077
+    singularity exec --bind hosts:/etc/hosts sparkleblast_latest.sif /opt/spark-2.2.0-bin-hadoop2.6/bin/spark-shell --master spark://<master_hostname>:7077
 ```
 The above command should drop a Spark shell and print the master address as provide above
 
