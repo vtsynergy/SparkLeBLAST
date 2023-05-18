@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# singularity exec --no-home --bind hosts:/etc/hosts sparkleblast_latest.sif /bin/bash
-
 SINGULARITY_ARGS=(
 
   --env SPARK_HOME=/opt/spark-2.2.0-bin-hadoop2.6
