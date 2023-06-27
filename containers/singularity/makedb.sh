@@ -11,10 +11,10 @@ SINGULARITY_ARGS=(
 MAKEDB_ARGS=(
   -p 2 
   -i /tmp/data/swissprot 
-  -t /tmp/data/sharedout 
+  -t /tmp/$(mktemp -d data/out/`hostname`_XXXX)/sharedout 
   -m spark://$(hostname):7077
 )
 
-rm -rf data/sharedout
+rm -rf mkdb.tmp.* output.* run/* log/* work/* data/out/*
 singularity exec ${SINGULARITY_ARGS[@]} sparkleblast_latest.sif \
   /opt/sparkleblast/SparkLeMakeDB.sh ${MAKEDB_ARGS[@]}
