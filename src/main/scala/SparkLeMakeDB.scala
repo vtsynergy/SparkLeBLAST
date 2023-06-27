@@ -27,6 +27,8 @@ object SparkLeMakeDB {
     val filePath = args(1)
     var script = args(2)
     val dbName = args(3)
+    val ncbiBlastPath = args(4)
+    val slbWorkDir = args(5)
 
     /* Read database into an RDD*/
     val dataset = sc.newAPIHadoopFile(filePath, classOf[TextInputFormat], classOf[LongWritable], classOf[Text],conf)
@@ -76,7 +78,7 @@ object SparkLeMakeDB {
 
     
     try{  
-        mapped.pipe(script).saveAsTextFile(dbName + "_formatting_logs");
+        mapped.pipe(script, env=Map("NCBI_BLAST_PATH" -> ncbiBlastPath , "SLB_WORKDIR" -> slbWorkDir)).saveAsTextFile(dbName + "_formatting_logs");
     }
     catch {
       case e : Exception => { println("WARNING: NOT ALL PARTITIONS FORMATTED DUE TO: " + e) };
