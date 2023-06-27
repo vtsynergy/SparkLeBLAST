@@ -34,7 +34,9 @@ object SparkLeBLASTSearch {
     val numSeq: Long = args(5).toLong
     val outputFormat = args(6).toInt
     val alignmentsPerQuery = args(7).toInt
-
+    val ncbiBlastPath = args(8)
+    val slbWorkDir = args(9)
+ 
     /* Get partitions names */
     val partitionNames = sc.newAPIHadoopFile(partitionsNames, classOf[TextInputFormat], 
                                               classOf[LongWritable], classOf[Text],conf)
@@ -44,7 +46,7 @@ object SparkLeBLASTSearch {
     /* Set arguments for NCBI BLAST */
     script = script + " " + queryPath + " " + dbPath + " " + dbLength.toString;
 
-    val resultUnsorted2 = partitions.pipe(script);//.saveAsTextFile("/fastscratch/karimy/finalOutput");
+    val resultUnsorted2 = partitions.pipe(script, env=Map("NCBI_BLAST_PATH" -> ncbiBlastPath , "SLB_WORKDIR" -> slbWorkDir)); //.saveAsTextFile("/fastscratch/karimy/finalOutput");
    
     resultUnsorted2.saveAsTextFile("/fastscratch/karimy/finalOutput");
 
