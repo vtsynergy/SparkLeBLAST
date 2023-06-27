@@ -6,15 +6,19 @@ SINGULARITY_ARGS=(
   --env SLB_WORKDIR=/opt/sparkleblast
   --bind hosts:/etc/hosts 
   --bind data:/tmp/data
+  --bind ../../SparkLeMakeDB.sh:/opt/sparkleblast/SparkLeMakeDB.sh
 )
 
+# PJM_MPI_PROC # possible word size
+
 MAKEDB_ARGS=(
-  -p 2 
+  -p $PJM_MPI_PROC 
+  -w $PJM_MPI_PROC
   -i /tmp/data/swissprot 
   -t /tmp/$(mktemp -d data/out/`hostname`_XXXX)/sharedout 
   -m spark://$(hostname):7077
 )
 
-# rm -rf mkdb.tmp.* output.* run/* log/* work/* data/out/*
-singularity exec ${SINGULARITY_ARGS[@]} sparkleblast_latest.sif \
+rm -rf output.* run/* log/* work/* data/out/*
+singularity exec "${SINGULARITY_ARGS[@]}" sparkleblast_latest.sif \
   /opt/sparkleblast/SparkLeMakeDB.sh ${MAKEDB_ARGS[@]}
