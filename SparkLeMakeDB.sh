@@ -182,7 +182,7 @@ else
 fi
 
 # Submit Spark job to format the BLAST DB
-${SPARK_HOME}/bin/spark-submit --master ${SPARK_MASTER_ADDRESS} --verbose --num-executors ${WORKERS} --executor-cores 1 --class SparkLeMakeDB ${SLB_WORKDIR}/target/scala-2.11/simple-project_2.11-1.0.jar ${PARTITIONS} ${INPUT_PATH} "${SLB_WORKDIR}/formatdbScript" ${OUTPUT_PATH} ${DB_TYPE};
+${SPARK_HOME}/bin/spark-submit --master ${SPARK_MASTER_ADDRESS} --verbose --conf "spark.executor.instances=1" --conf "spark.driver.extraJavaOptions=-XX:MaxHeapSize=28g" --conf "spark.worker.extraJavaOptions=-XX:MaxHeapSize=28g" --class SparkLeMakeDB ${SLB_WORKDIR}/target/scala-2.11/simple-project_2.11-1.0.jar ${PARTITIONS} ${INPUT_PATH} "${SLB_WORKDIR}/formatdbScript" ${OUTPUT_PATH} ${DB_TYPE};
 
 # Cancel SLURM Job
 if [ ! -z ${SPARK_SLURM_PATH} ]; then

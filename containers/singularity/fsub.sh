@@ -1,16 +1,18 @@
 #!/bin/bash
 
-NPROC=2
+NPROC=3
 PJSUB_ARGS=(-N mkdb.tmp
             -S -j
             -x PJM_LLIO_GFSCACHE=/vol0004
             -g ra000012
             # --llio localtmp-size=10Gi
+            -L rscgrp=small
             -L node=$NPROC
             -L elapse=0:10:00
             -L jobenv=singularity
             --mpi proc=$NPROC)
 
+rm mkdb.tmp.*
 pjsub ${PJSUB_ARGS[@]} << EOF
 rm hosts
 mpiexec ./gatherhosts_ips hosts
