@@ -15,6 +15,6 @@ MAKEDB_ARGS=(
   -m spark://$(hostname):7077
 )
 
-rm -rf mkdb.tmp.* output.* run/* log/* work/* data/out/*
+# rm -rf mkdb.tmp.* output.* run/* log/* work/* data/out/*
 singularity exec ${SINGULARITY_ARGS[@]} sparkleblast_latest.sif \
   /opt/sparkleblast/SparkLeMakeDB.sh ${MAKEDB_ARGS[@]}
