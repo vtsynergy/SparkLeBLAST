@@ -2,7 +2,7 @@
 
 SINGULARITY_ARGS=(
   --env SPARK_HOME=/opt/spark-2.2.0-bin-hadoop2.6
-  --env NCBI_BLAST_PATH=/opt/ncbi-blast-2.13.0+/bin
+  --env NCBI_BLAST_PATH=/opt/ncbi-blast-2.13.0+-src/c++/ReleaseMT/bin
   --env SLB_WORKDIR=/opt/sparkleblast
   --bind hosts:/etc/hosts 
   --bind data:/tmp/data
