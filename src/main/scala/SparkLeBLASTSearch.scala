@@ -36,7 +36,8 @@ object SparkLeBLASTSearch {
     val alignmentsPerQuery = args(7).toInt
     val ncbiBlastPath = args(8)
     val slbWorkDir = args(9)
- 
+    val outputPath = args(10)
+
     /* Get partitions names */
     val partitionNames = sc.newAPIHadoopFile(partitionsNames, classOf[TextInputFormat], 
                                               classOf[LongWritable], classOf[Text],conf)
@@ -48,12 +49,12 @@ object SparkLeBLASTSearch {
 
     val resultUnsorted2 = partitions.pipe(script, env=Map("NCBI_BLAST_PATH" -> ncbiBlastPath , "SLB_WORKDIR" -> slbWorkDir)); //.saveAsTextFile("/fastscratch/karimy/finalOutput");
    
-    resultUnsorted2.saveAsTextFile(dbPath + "/finalOutput");
+    resultUnsorted2.saveAsTextFile(outputPath + "/finalOutput");
 
     if ( outputFormat == 0 ){
     
       conf.set("textinputformat.record.delimiter", "Query=")
-      val resultUnsorted = sc.newAPIHadoopFile(dbPath + "/finalOutput", classOf[TextInputFormat],
+      val resultUnsorted = sc.newAPIHadoopFile(outputPath + "/finalOutput", classOf[TextInputFormat],
                                               classOf[LongWritable], classOf[Text],conf)
 
     
@@ -63,7 +64,7 @@ object SparkLeBLASTSearch {
                                   .map{ segment => (segment.split("\n")(0),"Query=" + segment) }
                                   .reduceByKey(_+"\n"+_)
                                   .repartition(resultUnsorted2.partitions.size);
-      resultByQuery.saveAsTextFile(dbPath + "/finalOutputByQuery");
+      resultByQuery.saveAsTextFile(outputPath + "/finalOutputByQuery");
       val resultSplit = resultByQuery.mapValues( line => line.split("\n") );
 
       val resultSplit2 = resultByQuery.mapValues( line => line.split("\n>") );
@@ -79,7 +80,7 @@ object SparkLeBLASTSearch {
                                         && (!line.contains(">")) && (!line.contains("Query"))
                                         && (!line.contains("No hits found"))))
                            .mapValues(_.map(line => (line,line.split(" +")(line.split(" +").length-2).toDouble.toInt)).sortBy(-_._2));
-        hsps.map{ case (k,v) => (k,v.mkString("\n")) }.saveAsTextFile(dbPath + "/finalOutputFiltered");
+        hsps.map{ case (k,v) => (k,v.mkString("\n")) }.saveAsTextFile(outputPath + "/finalOutputFiltered");
 
         val hspsExpanded = resultSplit2.mapValues(_.filter( partition => partition.contains("Score = ") && 
                                               !partition.contains("Searching...") )
@@ -88,24 +89,24 @@ object SparkLeBLASTSearch {
                                               .sortBy(-_._2)
                                               .map{ case ( k , v ) => k })
                                               .map{ case (k,v) => (k,v.mkString("\n")) }
-                                              .saveAsTextFile(dbPath + "/finalOutputExpanded");   
+                                              .saveAsTextFile(outputPath + "/finalOutputExpanded");   
       } 
     }
     else if (outputFormat == 6){
         // output format 8 merging logic goes here
         conf.set("textinputformat.record.delimiter", "\n")
-        val resultUnsorted = sc.newAPIHadoopFile(dbPath + "/finalOutput", classOf[TextInputFormat],
+        val resultUnsorted = sc.newAPIHadoopFile(outputPath + "/finalOutput", classOf[TextInputFormat],
                                               classOf[LongWritable], classOf[Text],conf)
         val resultByQuery = resultUnsorted.map{ case (k , v) => v.toString }
                                   .filter(line => line.split("\t").length > 2)
 				  .map{ segment => (segment.split("\t")(0),"" + segment) }
                                   .reduceByKey(_+"\n"+_)
                                   .repartition(resultUnsorted2.partitions.size);
-        resultByQuery.saveAsTextFile(dbPath + "/finalOutputByQuery");
+        resultByQuery.saveAsTextFile(outputPath + "/finalOutputByQuery");
         val resultSorted = resultByQuery.mapValues( line => line.split("\n"))
                                         .mapValues(
         _.map(result => (result,result.split("\t")(result.split("\t").length - 2).toDouble)).sortBy(_._2).take(alignmentsPerQuery));
-        resultSorted.map{ case (k,v) => v.mkString("\n") }.saveAsTextFile(dbPath + "/finalOutputSorted");
+        resultSorted.map{ case (k,v) => v.mkString("\n") }.saveAsTextFile(outputPath + "/finalOutputSorted");
 
     }
     
