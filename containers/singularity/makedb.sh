@@ -7,18 +7,35 @@ SINGULARITY_ARGS=(
   --bind hosts:/etc/hosts 
   --bind data:/tmp/data
   --bind ../../SparkLeMakeDB.sh:/opt/sparkleblast/SparkLeMakeDB.sh
+  --bind ../../SparkLeBLASTSearch.sh:/opt/sparkleblast/SparkLeBLASTSearch.sh
+  --bind ../../blast_args_test.txt:/opt/sparkleblast/blast_args.txt
+  --bind ../../blast_makedb_args.txt:/opt/sparkleblast/blast_makedb_args.txt
 )
 
+# missing bind: blastSearchScript, blast_*.txt and modify blastSearchScript
+
 # PJM_MPI_PROC # possible word size
+OUTPATH="/tmp/$(mktemp -d data/out/`hostname`_XXXX)/sharedout"
 
 MAKEDB_ARGS=(
   -p $PJM_MPI_PROC 
   -w $PJM_MPI_PROC
   -i /tmp/data/swissprot 
-  -t /tmp/$(mktemp -d data/out/`hostname`_XXXX)/sharedout 
+  -t $OUTPATH
   -m spark://$(hostname):7077
 )
 
+SEARCH_ARGS=(
+  -p $PJM_MPI_PROC 
+  -w $PJM_MPI_PROC
+  -q /tmp/data/Galaxy25-\[Geobacter_metallireducens.fasta\].fasta
+  -db $OUTPATH
+  -m spark://$(hostname):7077
+)
 rm -rf output.* run/* log/* work/* data/out/*
+
 singularity exec "${SINGULARITY_ARGS[@]}" sparkleblast_latest.sif \
   /opt/sparkleblast/SparkLeMakeDB.sh ${MAKEDB_ARGS[@]}
+
+singularity exec "${SINGULARITY_ARGS[@]}" sparkleblast_latest.sif \
+  /opt/sparkleblast/SparkLeBLASTSearch.sh ${SEARCH_ARGS[@]}
