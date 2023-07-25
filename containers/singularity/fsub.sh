@@ -12,9 +12,10 @@ PJSUB_ARGS=(-N mkdb.tmp
             -L jobenv=singularity
             --mpi proc=$NPROC)
 
-rm mkdb.tmp.*
+rm mkdb.tmp.* output.* # must be outside pjsub
+rm -rf  run/* log/* work/* data/out/*
+rm -rf  hosts master_success
 pjsub ${PJSUB_ARGS[@]} << EOF
-rm hosts
 mpiexec ./gatherhosts_ips hosts
 mpiexec ./start_spark_cluster.sh &
 ./makedb.sh
