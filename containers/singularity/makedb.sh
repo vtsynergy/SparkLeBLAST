@@ -20,7 +20,8 @@ OUTPATH="/tmp/$(mktemp -d data/out/`hostname`_XXXX)/sharedout"
 MAKEDB_ARGS=(
   -p $PJM_MPI_PROC 
   -w $PJM_MPI_PROC
-  -i /tmp/data/swissprot 
+  # -i /tmp/data/swissprot 
+  -i /tmp/data/non-rRNA-reads.fa 
   -t $OUTPATH
   -m spark://$(hostname):7077
 )
@@ -28,7 +29,8 @@ MAKEDB_ARGS=(
 SEARCH_ARGS=(
   -p $PJM_MPI_PROC 
   -w $PJM_MPI_PROC
-  -q /tmp/data/Galaxy25-\[Geobacter_metallireducens.fasta\].fasta
+  # -q /tmp/data/Galaxy25-\[Geobacter_metallireducens.fasta\].fasta
+  -q /tmp/data/simple_text.fa
   -db $OUTPATH
   -m spark://$(hostname):7077
 )
