@@ -30,13 +30,20 @@ The above command should drop a Spark shell and print the master address as prov
 ```
 
 ## Download Test Query and Database:
-coming soon...
 ### Query file
+- Extract `${REPOROOT}/covdiv_sample/non-rRNA-reads.fa.tgz` to `./data`.
+- Create `./data/sample_text.fa` from the first (e.g.) 10 lines: `head -n10 non-rRNA-reads.fa > sample_text.fa`.
+
 ### Database
+Use `non-rRNA-reads.fa.tgz` as the database.
 
-## Make a BLAST Database
-
-## Run a BLAST Search
+## Make a BLAST Database and run a BLAST Search
+The file `run_spark_jobs.sh` takes care of this (after the cluster is started).
 
 ## Run the COVID-19 Taxonomic Assignment BLAST Step:
-Coming soon...
+1. Downolad the database:
+```
+wget https://ftp.ncbi.nlm.nih.gov/blast/db/FASTA/nt.gz
+```
+2. Extract it.
+3. Use `non-rRNA-reads.fa` as the query.
