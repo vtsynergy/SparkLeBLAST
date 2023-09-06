@@ -16,6 +16,7 @@ SINGULARITY_ARGS=(
 
 # PJM_MPI_PROC # possible word size
 OUTPATH="/tmp/$(mktemp -d data/out/`hostname`_XXXX)/sharedout"
+mkdir -p $OUTPATH/output
 
 MAKEDB_ARGS=(
   -p $PJM_MPI_PROC 
@@ -30,13 +31,14 @@ SEARCH_ARGS=(
   -p $PJM_MPI_PROC 
   -w $PJM_MPI_PROC
   # -q /tmp/data/Galaxy25-\[Geobacter_metallireducens.fasta\].fasta
-  -q /tmp/data/simple_text.fa
+  -q /tmp/data/sample_text.fa
   -db $OUTPATH
   -m spark://$(hostname):7077
+  -o $OUTPATH/output
 )
 
 singularity exec "${SINGULARITY_ARGS[@]}" sparkleblast_latest.sif \
   /opt/sparkleblast/SparkLeMakeDB.sh ${MAKEDB_ARGS[@]}
 
-# singularity exec "${SINGULARITY_ARGS[@]}" sparkleblast_latest.sif \
-#   /opt/sparkleblast/SparkLeBLASTSearch.sh ${SEARCH_ARGS[@]}
+singularity exec "${SINGULARITY_ARGS[@]}" sparkleblast_latest.sif \
+  /opt/sparkleblast/SparkLeBLASTSearch.sh ${SEARCH_ARGS[@]}
