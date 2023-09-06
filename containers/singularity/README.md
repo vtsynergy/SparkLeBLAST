@@ -40,6 +40,8 @@ Use `non-rRNA-reads.fa.tgz` as the database.
 ## Make a BLAST Database and run a BLAST Search
 The file `run_spark_jobs.sh` takes care of this (after the cluster is started).
 
+On Fugaku use `fsub.sh` (take care, early version of this file deleted previous results/data).
+
 ## Run the COVID-19 Taxonomic Assignment BLAST Step:
 1. Downolad the database:
 ```
