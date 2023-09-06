@@ -15,7 +15,7 @@ SINGULARITY_ARGS=(
 # missing bind: blastSearchScript, blast_*.txt and modify blastSearchScript
 
 # PJM_MPI_PROC # possible word size
-OUTPATH="/tmp/$(mktemp -d data/out/`hostname`_XXXX)/sharedout"
+OUTPATH="/tmp/$(date -I)-$(date +%s)-$(hostname)/sharedout"
 mkdir -p $OUTPATH/output
 
 MAKEDB_ARGS=(
