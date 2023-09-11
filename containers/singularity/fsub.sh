@@ -1,5 +1,8 @@
 #!/bin/bash
 
+DBFILE=$1
+QUERYFILE=$2
+
 NPROC=3
 PJSUB_ARGS=(-N mkdb.tmp
             -S -j
@@ -18,8 +21,12 @@ rm -rf  hosts master_success
 pjsub ${PJSUB_ARGS[@]} << EOF
 mpiexec ./gatherhosts_ips hosts
 mpiexec ./start_spark_cluster.sh &
-./run_spark_jobs.sh
+./run_spark_jobs.sh ${DBFILE} ${QUERYFILE}
 # mpiexec ./stop_spark_cluster.sh &
 rm master_success
 echo FSUB IS DONE
 EOF
+
+# DBFILE=non-rRNA-reads.fa
+# Galaxy25-\[Geobacter_metallireducens.fasta\].fasta
+# QUERYFILE=sample_text.fa

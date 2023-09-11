@@ -1,11 +1,13 @@
 #!/bin/bash
 
+DOCKER_DATADIR=/tmpdata
+
 SINGULARITY_ARGS=(
   --env SPARK_HOME=/opt/spark-2.2.0-bin-hadoop2.6
   --env NCBI_BLAST_PATH=/opt/ncbi-blast-2.13.0+-src/c++/ReleaseMT/bin
   --env SLB_WORKDIR=/opt/sparkleblast
-  --bind hosts:/etc/hosts 
-  --bind data:/tmp/data
+  --bind hosts:/etc/hosts
+  --bind data:${DOCKER_DATADIR}
   --bind ../../SparkLeMakeDB.sh:/opt/sparkleblast/SparkLeMakeDB.sh
   --bind ../../SparkLeBLASTSearch.sh:/opt/sparkleblast/SparkLeBLASTSearch.sh
   --bind ../../blast_args_test.txt:/opt/sparkleblast/blast_args.txt
@@ -15,30 +17,49 @@ SINGULARITY_ARGS=(
 # missing bind: blastSearchScript, blast_*.txt and modify blastSearchScript
 
 # PJM_MPI_PROC # possible word size
-OUTPATH="/tmp/$(mktemp -d data/out/$(date -I)_$(hostname)_XXXX)/sharedout"
-mkdir -p $OUTPATH/output
+
+DBFILE=$1
+QUERYFILE=$2
+
+if [ -n -e data/${DBFILE} ]; then
+    echo "Could not find data/${DBFILE}"
+    exit 1;
+fi
+
+if [ -n -e data/${QUERYFILE} ]; then
+    echo "Could not find data/${QUERYFILE}"
+    exit 1;
+fi
+
+
+OUTPATH=makedb_out/${DBFILE}_${PJM_MPI_PROC}
+mkdir -p $(basename ${DOCKER_DATADIR})/${OUTPATH}
+MAKEDB_OUTPATH=${DOCKER_DATADIR}/${OUTPATH}
 
 MAKEDB_ARGS=(
-  -p $PJM_MPI_PROC 
+  -p $PJM_MPI_PROC
   -w $PJM_MPI_PROC
-  # -i /tmp/data/swissprot 
-  -i /tmp/data/non-rRNA-reads.fa 
-  -t $OUTPATH
+  -i ${DOCKER_DATADIR}/${DBFILE}
+  -t ${MAKEDB_OUTPATH}
   -m spark://$(hostname):7077
 )
+
+TEMPDIR=$(mktemp -d $(basename ${DOCKER_DATADIR})/final_output/$(date -I)_$(hostname)_XXXX)
+FINAL_OUTPATH=$(dirname ${DOCKER_DATADIR})/${TEMPDIR}
 
 SEARCH_ARGS=(
-  -p $PJM_MPI_PROC 
+  -p $PJM_MPI_PROC
   -w $PJM_MPI_PROC
-  # -q /tmp/data/Galaxy25-\[Geobacter_metallireducens.fasta\].fasta
-  -q /tmp/data/sample_text.fa
-  -db $OUTPATH
+  -q ${DOCKER_DATADIR}/${QUERYFILE}
+  -db ${MAKEDB_OUTPATH}
   -m spark://$(hostname):7077
-  -o $OUTPATH/output
+  -o ${FINAL_OUTPATH}
 )
 
-singularity exec "${SINGULARITY_ARGS[@]}" sparkleblast_latest.sif \
-  /opt/sparkleblast/SparkLeMakeDB.sh ${MAKEDB_ARGS[@]}
+if [ -n -e ${HOST_OUTPATH} ]; then
+    singularity exec "${SINGULARITY_ARGS[@]}" sparkleblast_latest.sif \
+        /opt/sparkleblast/SparkLeMakeDB.sh ${MAKEDB_ARGS[@]}
+fi
 
 singularity exec "${SINGULARITY_ARGS[@]}" sparkleblast_latest.sif \
   /opt/sparkleblast/SparkLeBLASTSearch.sh ${SEARCH_ARGS[@]}
