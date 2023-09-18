@@ -5,11 +5,22 @@ DBFILE=$2
 QUERYFILE=$3
 
 USAGE="$0 \${NPROC}"
-if [ -z ${NPROC} ] || [ ! -e "data/${DBFILE}" ] || [ ! -e "data/${QUERYFILE}" ]; then
-  # echo "NPROC not set!" # TODO separate errors
+if [ -z ${NPROC} ]; then
+  echo "NPROC not set!"
   echo ${USAGE}
   exit 1
 fi
+if [ ! -f data/${DBFILE} ]; then
+    echo "Could not find data/${DBFILE}"
+    echo ${USAGE}
+    exit 1;
+fi
+if [ ! -f data/${QUERYFILE} ]; then
+    echo "Could not find data/${QUERYFILE}"
+    echo ${USAGE}
+    exit 1;
+fi
+
 if [ ${NPROC} -gt 384 ]; then
   RSCGRP=large;
 else

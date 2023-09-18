@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DOCKER_DATADIR=/tmpdata
+DOCKER_DATADIR=/tmp/data
 
 SINGULARITY_ARGS=(
   --env SPARK_HOME=/opt/spark-2.2.0-bin-hadoop2.6
@@ -20,17 +20,6 @@ SINGULARITY_ARGS=(
 
 DBFILE=$1
 QUERYFILE=$2
-
-if [ -n -e data/${DBFILE} ]; then
-    echo "Could not find data/${DBFILE}"
-    exit 1;
-fi
-
-if [ -n -e data/${QUERYFILE} ]; then
-    echo "Could not find data/${QUERYFILE}"
-    exit 1;
-fi
-
 
 OUTPATH=makedb_out/${DBFILE}_${PJM_MPI_PROC}
 mkdir -p $(basename ${DOCKER_DATADIR})/${OUTPATH}
@@ -56,7 +45,7 @@ SEARCH_ARGS=(
   -o ${FINAL_OUTPATH}
 )
 
-if [ -n -e ${HOST_OUTPATH} ]; then
+if [ ! -e ${HOST_OUTPATH} ]; then
     singularity exec "${SINGULARITY_ARGS[@]}" sparkleblast_latest.sif \
         /opt/sparkleblast/SparkLeMakeDB.sh ${MAKEDB_ARGS[@]}
 fi
