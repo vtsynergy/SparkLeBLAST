@@ -1,15 +1,16 @@
 #!/bin/bash
 
-DBFILE=$1
-QUERYFILE=$2
+NPROC=$1
+DBFILE=$2
+QUERYFILE=$3
 
 USAGE="$0 \${NPROC}"
 if [ -z ${NPROC} ] || [ ! -e "data/${DBFILE}" ] || [ ! -e "data/${QUERYFILE}" ]; then
-  echo "NPROC not set!" # TODO separate errors
+  # echo "NPROC not set!" # TODO separate errors
   echo ${USAGE}
   exit 1
 fi
-if [ ${NPROC} -gt 384 ]; then 
+if [ ${NPROC} -gt 384 ]; then
   RSCGRP=large;
 else
   RSCGRP=small;
@@ -31,7 +32,7 @@ PJSUB_ARGS=(
 # rm mkdb.tmp.* output.* # must be outside pjsub
 # rm -rf  run/* log/* work/* data/out/*
 # rm -rf  hosts master_success
-echo pjsub ${PJSUB_ARGS[@]} 
+echo pjsub ${PJSUB_ARGS[@]}
 cat << EOF
 mpiexec ./gatherhosts_ips hosts
 mpiexec ./start_spark_cluster.sh &
