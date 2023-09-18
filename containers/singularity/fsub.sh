@@ -43,8 +43,7 @@ PJSUB_ARGS=(
 # rm mkdb.tmp.* output.* # must be outside pjsub
 # rm -rf  run/* log/* work/* data/out/*
 # rm -rf  hosts master_success
-echo pjsub ${PJSUB_ARGS[@]}
-cat << EOF
+pjsub ${PJSUB_ARGS[@]} << EOF
 mpiexec ./gatherhosts_ips hosts
 mpiexec ./start_spark_cluster.sh &
 ./run_spark_jobs.sh ${DBFILE} ${QUERYFILE}
