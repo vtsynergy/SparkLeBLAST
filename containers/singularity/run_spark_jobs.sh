@@ -22,7 +22,8 @@ DBFILE=$1
 QUERYFILE=$2
 
 OUTPATH=makedb_out/${DBFILE}_${PJM_MPI_PROC}
-mkdir -p $(basename ${DOCKER_DATADIR})/${OUTPATH}
+mkdir -p ./data/${OUTPATH}
+mkdir -p ./data/final_output/${OUTPATH}
 MAKEDB_OUTPATH=${DOCKER_DATADIR}/${OUTPATH}
 
 MAKEDB_ARGS=(
@@ -33,7 +34,7 @@ MAKEDB_ARGS=(
   -m spark://$(hostname):7077
 )
 
-TEMPDIR=$(mktemp -d $(basename ${DOCKER_DATADIR})/final_output/$(date -I)_$(hostname)_XXXX)
+TEMPDIR=$(mktemp -d ./data/final_output/$(date -I)_$(hostname)_XXXX)
 FINAL_OUTPATH=$(dirname ${DOCKER_DATADIR})/${TEMPDIR}
 
 SEARCH_ARGS=(
