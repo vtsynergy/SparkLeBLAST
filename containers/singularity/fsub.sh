@@ -20,6 +20,11 @@ if [ ! -f data/${QUERYFILE} ]; then
     echo ${USAGE}
     exit 1;
 fi
+if email=$(git config --get user.email); then
+    email_args="-m b,e --mail-list ${email}"
+else
+    echo "$0 WARNING: git email not set!"
+fi
 
 if [ ${NPROC} -gt 384 ]; then
   RSCGRP=large;
@@ -35,15 +40,17 @@ PJSUB_ARGS=(
   # --llio localtmp-size=10Gi
   -L rscgrp=${RSCGRP}
   -L node=${NPROC}
-  -L elapse=10:00:00
+  -L elapse=1:00:00
   -L jobenv=singularity
   --mpi proc=${NPROC}
+  ${email_args}
 )
 
 # rm mkdb.tmp.* output.* # must be outside pjsub
 # rm -rf  run/* log/* work/* data/out/*
 # rm -rf  hosts master_success
 pjsub ${PJSUB_ARGS[@]} << EOF
+mkdir -p log run work
 mpiexec ./gatherhosts_ips hosts
 mpiexec ./start_spark_cluster.sh &
 ./run_spark_jobs.sh ${DBFILE} ${QUERYFILE}
