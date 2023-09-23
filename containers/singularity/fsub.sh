@@ -48,7 +48,7 @@ PJSUB_ARGS=(
 
 # rm mkdb.tmp.* output.* # must be outside pjsub
 # rm -rf  run/* log/* work/* data/out/*
-# rm -rf  hosts master_success
+rm -rf  hosts master_success
 pjsub ${PJSUB_ARGS[@]} << EOF
 mkdir -p log run work
 mpiexec ./gatherhosts_ips hosts
