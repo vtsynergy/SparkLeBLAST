@@ -33,7 +33,7 @@ else
 fi
 
 PJSUB_ARGS=(
-  -N slarkle-${NPROC}
+  -N sparkle-${NPROC}
   -S -j
   -x PJM_LLIO_GFSCACHE=/vol0004
   -g ra000012
