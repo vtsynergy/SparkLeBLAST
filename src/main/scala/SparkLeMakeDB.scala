@@ -29,12 +29,17 @@ object SparkLeMakeDB {
     val dbName = args(3)
     val ncbiBlastPath = args(4)
     val slbWorkDir = args(5)
+    val dbSizeBytes = args(6)
+    val partitionSize = dbSizeBytes.toFloat / splits.toFloat
+    val partitionSizeInt = partitionSize.ceil.toInt
+
+    conf.set("mapred.min.split.size", partitionSizeInt.toString)
 
     /* Read database into an RDD*/
     val dataset = sc.newAPIHadoopFile(filePath, classOf[TextInputFormat], classOf[LongWritable], classOf[Text],conf)
    
     /* Repartition according to number of partitions specified by user */
-    val finalData = dataset.map( d => (">" + d._2).trim().replaceAll("\u0001"," ")).repartition(splits.toInt);
+    val finalData = dataset.map( d => (">" + d._2).trim().replaceAll("\u0001"," ")); // .repartition(splits.toInt);
     dataset.unpersist();    
 
     
