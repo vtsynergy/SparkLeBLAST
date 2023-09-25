@@ -22,15 +22,16 @@ DBFILE=$1
 QUERYFILE=$2
 
 OUTPATH=makedb_out/${DBFILE}_${PJM_MPI_PROC}
-mkdir -p ./data/${OUTPATH}
+SING_OUTPATH=${DOCKER_DATADIR}/${OUTPATH}
+HOST_OUTPATH=./data/${OUTPATH}
+mkdir -p ${HOST_OUTPATH}
 mkdir -p ./data/final_output/${OUTPATH}
-MAKEDB_OUTPATH=${DOCKER_DATADIR}/${OUTPATH}
 
 MAKEDB_ARGS=(
   -p $PJM_MPI_PROC
   -w $PJM_MPI_PROC
   -i ${DOCKER_DATADIR}/${DBFILE}
-  -t ${MAKEDB_OUTPATH}
+  -t ${SING_OUTPATH}
   -m spark://$(hostname):7077
 )
 
@@ -41,15 +42,16 @@ SEARCH_ARGS=(
   -p $PJM_MPI_PROC
   -w $PJM_MPI_PROC
   -q ${DOCKER_DATADIR}/${QUERYFILE}
-  -db ${MAKEDB_OUTPATH}
+  -db ${SING_OUTPATH}
   -m spark://$(hostname):7077
   -o ${FINAL_OUTPATH}
 )
 
-if [ ! -e ${HOST_OUTPATH} ]; then
+if [ ! -e ${HOST_OUTPATH}/database.dbs ]; then
     singularity exec "${SINGULARITY_ARGS[@]}" sparkleblast_latest.sif \
         /opt/sparkleblast/SparkLeMakeDB.sh ${MAKEDB_ARGS[@]}
 fi
 
 singularity exec "${SINGULARITY_ARGS[@]}" sparkleblast_latest.sif \
   /opt/sparkleblast/SparkLeBLASTSearch.sh ${SEARCH_ARGS[@]}
+
