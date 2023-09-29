@@ -12,18 +12,20 @@ QUERYFILE=$2
 CONTAINER_DATA_DIR=/tmp/data
 HOST_DATA_DIR=./data
 
-MAKEDB_OUT_DIR=makedb_out/${DBFILE}:${PJM_MPI_PROC}
+MAKEDB_OUT_DIR=makedb_out/${DBFILE}_${PJM_MPI_PROC}
 CONTAINER_MAKEDB_OUT_DIR=${CONTAINER_DATA_DIR}/${MAKEDB_OUT_DIR}
 HOST_MAKEDB_OUT_DIR=${HOST_DATA_DIR}/${MAKEDB_OUT_DIR}
 mkdir -p $(dirname ${HOST_MAKEDB_OUT_DIR})
 
-SEARCH_OUT_DIR=search_out/${DBFILE}:${PJM_MPI_PROC}:${QUERYFILE}/${PJM_JOBID}:$(date -I)_$(hostname)
+SEARCH_OUT_DIR=search_out/${DBFILE}_${PJM_MPI_PROC}_${QUERYFILE}/${PJM_JOBID}_$(date -I)_$(hostname)
 mkdir -p $(dirname ${HOST_DATA_DIR}/${SEARCH_OUT_DIR})
 
 SINGULARITY_ARGS=(
   --env SPARK_HOME=/opt/spark-2.2.0-bin-hadoop2.6
   --env NCBI_BLAST_PATH=/opt/ncbi-blast-2.13.0+-src/c++/ReleaseMT/bin
   --env SLB_WORKDIR=/opt/sparkleblast
+  --cleanenv
+  --disable-cache
   --bind hosts:/etc/hosts
   --bind ${HOST_DATA_DIR}:${CONTAINER_DATA_DIR}
   --bind ../../SparkLeMakeDB.sh:/opt/sparkleblast/SparkLeMakeDB.sh
