@@ -160,7 +160,7 @@ max_target_seqs=$(grep -o -P 'max_target_seqs.{0,5}' ${SLB_WORKDIR}/blast_args.t
 
 # Submit Spark job to perform blast search
 echo "Running Blast Search"
-${SPARK_HOME}/bin/spark-submit --master ${SPARK_MASTER_ADDRESS} --verbose --conf "spark.executor.instances=1" --conf "spark.driver.extraJavaOptions=-XX:MaxHeapSize=28g" --conf "spark.worker.extraJavaOptions=-XX:MaxHeapSize=28g" --class SparkLeBLASTSearch ${SLB_WORKDIR}/target/scala-2.11/simple-project_2.11-1.0.jar "${DATABASE}${partitionsIDs}" ${QUERY} ${DATABASE} "${SLB_WORKDIR}/blastSearchScript" ${dbLen} ${numSeq} ${outfmt} ${max_target_seqs} ${NCBI_BLAST_PATH} ${SLB_WORKDIR} ${OUTPUT_PATH}
+${SPARK_HOME}/bin/spark-submit --master ${SPARK_MASTER_ADDRESS} --verbose --conf "spark.executor.instances=1" --conf "spark.driver.extraJavaOptions=-XX:MaxHeapSize=30g" --conf "spark.worker.extraJavaOptions=-XX:MaxHeapSize=30g" --conf "spark.driver.memory=29g" --conf "spark.executor.memory=29g" --class SparkLeBLASTSearch ${SLB_WORKDIR}/target/scala-2.11/simple-project_2.11-1.0.jar "${DATABASE}${partitionsIDs}" ${QUERY} ${DATABASE} "${SLB_WORKDIR}/blastSearchScript" ${dbLen} ${numSeq} ${outfmt} ${max_target_seqs} ${NCBI_BLAST_PATH} ${SLB_WORKDIR} ${OUTPUT_PATH}
 echo "Blast Search Done"
 
 if [ ! -z ${SPARK_SLURM_PATH} ]; then
