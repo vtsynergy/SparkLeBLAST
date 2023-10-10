@@ -1,8 +1,9 @@
 #!/bin/bash
 
-NPROC=$1
-DBFILE=$2
-QUERYFILE=$3
+DBFILE=$1
+QUERYFILE=$2
+NPROC=$3
+ELAPSE=${4:-30:00}
 
 USAGE="$0 \${NPROC}"
 if [ -z ${NPROC} ]; then
@@ -40,22 +41,22 @@ PJSUB_ARGS=(
   # --llio localtmp-size=10Gi
   -L rscgrp=${RSCGRP}
   -L node=${NPROC}
-  -L elapse=1:00:00
+  -L elapse=${ELAPSE}
   -L jobenv=singularity
   --mpi proc=${NPROC}
   ${email_args}
 )
 
-# rm mkdb.tmp.* output.* # must be outside pjsub
-# rm -rf  run/* log/* work/* data/out/*
-rm -rf  hosts master_success
+# rm -rf sparkle-* output.* # must be outside pjsub
+# rm -rf  run/* log/* work/* data/makedb_out data/search_out
 pjsub ${PJSUB_ARGS[@]} << EOF
+rm -rf  hosts master_success
 mkdir -p log run work
 mpiexec ./gatherhosts_ips hosts
 mpiexec ./start_spark_cluster.sh &
-./run_spark_jobs.sh ${DBFILE} ${QUERYFILE}
+bash -x ./run_spark_jobs.sh ${DBFILE} ${QUERYFILE}
 # mpiexec ./stop_spark_cluster.sh &
-rm master_success
+rm -rf master_success
 echo FSUB IS DONE
 EOF
 
