@@ -47,8 +47,8 @@ PJSUB_ARGS=(
   ${email_args}
 )
 
-# rm -rf sparkle-* output.* # must be outside pjsub
-# rm -rf  run/* log/* work/* data/makedb_out data/search_out
+rm -rf sparkle-* output.* # must be outside pjsub
+rm -rf  run/* log/* work/* data/makedb_out data/search_out
 pjsub ${PJSUB_ARGS[@]} << EOF
 rm -rf  hosts master_success
 mkdir -p log run work
