@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x
+
 DBFILE=$1
 QUERYFILE=$2
 NPROC=$3
@@ -33,9 +35,15 @@ else
   RSCGRP=small;
 fi
 
+OUTPUT_DIR=output
+
+NAME=sparkle-${NPROC}
 PJSUB_ARGS=(
-  -N sparkle-${NPROC}
-  -S -j
+  -N ${NAME}
+  -S # -j
+  -o ${OUTPUT_DIR}/%j-${NAME}.stdout
+  -e ${OUTPUT_DIR}/%j-${NAME}.stderr
+  --spath ${OUTPUT_DIR}/%j-${NAME}.stat
   -x PJM_LLIO_GFSCACHE=/vol0004
   -g ra000012
   # --llio localtmp-size=10Gi
@@ -47,15 +55,22 @@ PJSUB_ARGS=(
   ${email_args}
 )
 
-rm -rf sparkle-* output.* # must be outside pjsub
-rm -rf  run/* log/* work/* data/makedb_out data/search_out
+if [[ "${CLEARALL^^}" =~ ^(YES|ON|TRUE)$ ]]; then 
+  # must be outside pjsub
+  rm -rf output run log work data/makedb_out data/search_out
+fi
+
+mkdir -p ${OUTPUT_DIR}
 pjsub ${PJSUB_ARGS[@]} << EOF
+OF_PROC=${OUTPUT_DIR}/\${PJM_JOBID}-${NAME}/mpi
+
 rm -rf  hosts master_success
-mkdir -p log run work
-mpiexec ./gatherhosts_ips hosts
-mpiexec ./start_spark_cluster.sh &
+mkdir -p log run work \$(dirname \${OF_PROC})
+
+mpiexec -of-proc \${OF_PROC} ./gatherhosts_ips hosts
+mpiexec -of-proc \${OF_PROC} ./start_spark_cluster.sh &
 bash -x ./run_spark_jobs.sh ${DBFILE} ${QUERYFILE}
-# mpiexec ./stop_spark_cluster.sh &
+# mpiexec -of-proc \${OF_PROC} ./stop_spark_cluster.sh &
 rm -rf master_success
 echo FSUB IS DONE
 EOF
