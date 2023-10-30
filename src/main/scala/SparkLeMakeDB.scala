@@ -30,9 +30,11 @@ object SparkLeMakeDB {
     val ncbiBlastPath = args(4)
     val slbWorkDir = args(5)
     val dbSizeBytes = args(6)
+
     val partitionSize = dbSizeBytes.toFloat / splits.toFloat
     val partitionSizeInt = partitionSize.ceil.toInt
 
+    println("partitionSizeInt: " + partitionSizeInt.toString())
     conf.set("mapred.min.split.size", partitionSizeInt.toString)
 
     /* Read database into an RDD*/
