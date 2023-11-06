@@ -34,9 +34,10 @@ object SparkLeMakeDB {
     val partitionSize = dbSizeBytes.toFloat / splits.toFloat
     val partitionSizeInt = partitionSize.ceil.toInt
 
+    println("dbSizeBytes: " + dbSizeBytes.toString())
     println("partitionSizeInt: " + partitionSizeInt.toString())
-    conf.set("mapred.min.split.size", partitionSizeInt.toString)
-
+    conf.set("mapreduce.input.fileinputformat.split.minsize", partitionSizeInt.toString)
+    
     /* Read database into an RDD*/
     val dataset = sc.newAPIHadoopFile(filePath, classOf[TextInputFormat], classOf[LongWritable], classOf[Text],conf)
    
