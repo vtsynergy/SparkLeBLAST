@@ -45,6 +45,7 @@ PJSUB_ARGS=(
   -e ${OUTPUT_DIR}/%j-${NAME}.stderr
   --spath ${OUTPUT_DIR}/%j-${NAME}.stat
   -x PJM_LLIO_GFSCACHE=/vol0004
+  -x SINGULARITY_TMPDIR=/local
   -g ra000012
   # --llio localtmp-size=10Gi
   -L rscgrp=${RSCGRP}

@@ -2,7 +2,7 @@
 
 SINGULARITY_ARGS=(
   --no-home
-  --bind hosts:/etc/hosts
+  # --bind hosts:/etc/hosts
   --bind data:/tmp/data
 )
 
