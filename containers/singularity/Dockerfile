@@ -5,7 +5,7 @@
 #
 # Build command (example): 
 #
-#   docker buildx build  . --platform linux/arm64 --tag karimyoussef1991/sparkleblast:latest --push
+#   docker buildx build  . --platform linux/arm64 --tag karimyoussef1991/sparkleblast-base:latest --push
 #
 # To build arm64 on x86_64 you might need:
 #
