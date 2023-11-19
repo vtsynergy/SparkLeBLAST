@@ -32,9 +32,10 @@ object SparkLeMakeDB {
     val dbSizeBytes = args(6)
 
     val partitionSize = dbSizeBytes.toFloat / splits.toFloat
-    val partitionSizeInt = partitionSize.ceil.toInt
+    val partitionSizeInt = partitionSize.ceil.toLong
 
     println("dbSizeBytes: " + dbSizeBytes.toString())
+    println("partitionSize: " + partitionSize.toString())
     println("partitionSizeInt: " + partitionSizeInt.toString())
     conf.set("mapreduce.input.fileinputformat.split.minsize", partitionSizeInt.toString)
     
