@@ -29,7 +29,7 @@ SINGULARITY_ARGS=(
   --env SLB_WORKDIR=/opt/sparkleblast
   # --cleanenv
   --disable-cache
-  --bind hosts:/etc/hosts
+  --bind hosts-${PJM_JOBID}:/etc/hosts
   --bind ${HOST_DATA_DIR}:${CONTAINER_DATA_DIR}
 )
 
