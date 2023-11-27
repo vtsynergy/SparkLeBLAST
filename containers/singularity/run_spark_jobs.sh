@@ -12,12 +12,15 @@ QUERYFILE=$2
 CONTAINER_DATA_DIR=/tmp/data
 HOST_DATA_DIR=./data
 
-MAKEDB_OUT_DIR=makedb_out/${DBFILE}_${PJM_MPI_PROC}
+NUM_PART=$(( ${PJM_MPI_PROC} - 1 ))
+echo "NUM_PART=${NUM_PART}"
+
+MAKEDB_OUT_DIR=makedb_out/${DBFILE}_${NUM_PART}
 CONTAINER_MAKEDB_OUT_DIR=${CONTAINER_DATA_DIR}/${MAKEDB_OUT_DIR}
 HOST_MAKEDB_OUT_DIR=${HOST_DATA_DIR}/${MAKEDB_OUT_DIR}
 mkdir -p $(dirname ${HOST_MAKEDB_OUT_DIR})
 
-SEARCH_OUT_DIR=search_out/${DBFILE}_${PJM_MPI_PROC}_${QUERYFILE}/${PJM_JOBID}_$(date -I)_$(hostname)
+SEARCH_OUT_DIR=search_out/${DBFILE}_${NUM_PART}_${QUERYFILE}/${PJM_JOBID}_$(date -I)_$(hostname)
 mkdir -p $(dirname ${HOST_DATA_DIR}/${SEARCH_OUT_DIR})
 
 SINGULARITY_ARGS=(
@@ -28,23 +31,19 @@ SINGULARITY_ARGS=(
   --disable-cache
   --bind hosts:/etc/hosts
   --bind ${HOST_DATA_DIR}:${CONTAINER_DATA_DIR}
-  # --bind ../../SparkLeMakeDB.sh:/opt/sparkleblast/SparkLeMakeDB.sh
-  # --bind ../../SparkLeBLASTSearch.sh:/opt/sparkleblast/SparkLeBLASTSearch.sh
-  # --bind ../../blast_args_test.txt:/opt/sparkleblast/blast_args.txt
-  # --bind ../../blast_makedb_args.txt:/opt/sparkleblast/blast_makedb_args.txt
 )
 
 MAKEDB_ARGS=(
-  -p $PJM_MPI_PROC
-  -w $PJM_MPI_PROC
+  -p $NUM_PART
+  -w $NUM_PART
   -i ${CONTAINER_DATA_DIR}/${DBFILE}
   -t ${CONTAINER_MAKEDB_OUT_DIR}
   -m spark://$(hostname):7077
 )
 
 SEARCH_ARGS=(
-  -p $PJM_MPI_PROC
-  -w $PJM_MPI_PROC
+  -p $NUM_PART
+  -w $NUM_PART
   -q ${CONTAINER_DATA_DIR}/${QUERYFILE}
   -db ${CONTAINER_MAKEDB_OUT_DIR}
   -m spark://$(hostname):7077
