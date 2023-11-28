@@ -3,12 +3,13 @@
 # set -x
 
 
-NPART=${1:-1}
-PART_SIZE=$(( $PJM_MPI_PROC / $NPART ))
+NGROUPS=${1:-1}
+PART_SIZE=$(( $PJM_MPI_PROC / $NGROUPS ))
 GROUP_RANK=$(( $PMIX_RANK / $PART_SIZE ))
 SUB_RANK=$(( $PMIX_RANK % $PART_SIZE ))
 HOSTS_FILE=hosts-${PJM_JOBID}-${GROUP_RANK}
 MASTER_FILE=master-${PJM_JOBID}-${GROUP_RANK}
+
 
 start_master() {
 
@@ -31,7 +32,7 @@ start_master() {
 }
 
 start_worker () {
-    echo WORKER: $NPART
+    echo WORKER: $NGROUPS
     while [ ! -e ${MASTER_FILE} ]; do
         sleep 1
     done
@@ -54,5 +55,5 @@ start_cluster () {
     fi
 }
 
-split -n$NPART -d -a1 hosts hosts-${PJM_JOBID}-
+split -n$NGROUPS -d -a1 hosts hosts-${PJM_JOBID}-
 start_cluster
