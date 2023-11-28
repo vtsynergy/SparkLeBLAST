@@ -28,10 +28,6 @@ SINGULARITY_ARGS=(
   --disable-cache
   --bind hosts:/etc/hosts
   --bind ${HOST_DATA_DIR}:${CONTAINER_DATA_DIR}
-  # --bind ../../SparkLeMakeDB.sh:/opt/sparkleblast/SparkLeMakeDB.sh
-  # --bind ../../SparkLeBLASTSearch.sh:/opt/sparkleblast/SparkLeBLASTSearch.sh
-  # --bind ../../blast_args_test.txt:/opt/sparkleblast/blast_args.txt
-  # --bind ../../blast_makedb_args.txt:/opt/sparkleblast/blast_makedb_args.txt
 )
 
 MAKEDB_ARGS=(
