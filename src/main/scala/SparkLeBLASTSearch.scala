@@ -48,6 +48,14 @@ object SparkLeBLASTSearch {
     script = script + " " + queryPath + " " + dbPath + " " + dbLength.toString;
 
     val resultUnsorted2 = partitions.pipe(script, env=Map("NCBI_BLAST_PATH" -> ncbiBlastPath , "SLB_WORKDIR" -> slbWorkDir)); //.saveAsTextFile("/fastscratch/karimy/finalOutput");
+
+    /* Get partition size (from rdd size) */
+    val rddSize = resultUnsorted2.map(_.getBytes("UTF-8").length.toLong).reduce(_+_)
+    val partitionSize = rddSize / resultUnsorted2.getNumPartitions()
+    println("rddSize: " + rddSize.toString)
+    println("partitionSize: " + partitionSize.toString)
+    conf.set("mapreduce.input.fileinputformat.split.minsize", partitionSize.toString)
+
    
     resultUnsorted2.saveAsTextFile(outputPath + "/finalOutput");
 
@@ -62,8 +70,7 @@ object SparkLeBLASTSearch {
       val resultByQuery = resultUnsorted.map{ case (k , v) => v.toString }
                                   .filter(segment => segment.contains("Database"))
                                   .map{ segment => (segment.split("\n")(0),"Query=" + segment) }
-                                  .reduceByKey(_+"\n"+_)
-                                  .repartition(resultUnsorted2.partitions.size);
+                                  .reduceByKey(_+"\n"+_);
       resultByQuery.saveAsTextFile(outputPath + "/finalOutputByQuery");
       val resultSplit = resultByQuery.mapValues( line => line.split("\n") );
 
@@ -100,8 +107,7 @@ object SparkLeBLASTSearch {
         val resultByQuery = resultUnsorted.map{ case (k , v) => v.toString }
                                   .filter(line => line.split("\t").length > 2)
 				  .map{ segment => (segment.split("\t")(0),"" + segment) }
-                                  .reduceByKey(_+"\n"+_)
-                                  .repartition(resultUnsorted2.partitions.size);
+                                  .reduceByKey(_+"\n"+_);
         resultByQuery.saveAsTextFile(outputPath + "/finalOutputByQuery");
         val resultSorted = resultByQuery.mapValues( line => line.split("\n"))
                                         .mapValues(
