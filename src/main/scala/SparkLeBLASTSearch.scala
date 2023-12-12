@@ -51,7 +51,7 @@ object SparkLeBLASTSearch {
 
     /* Get partition size (from rdd size) */
     val rddSize = resultUnsorted2.map(_.getBytes("UTF-8").length.toLong).reduce(_+_)
-    val partitionSize = rddSize / resultUnsorted2.getNumPartitions
+    val partitionSize = rddSize / resultUnsorted2.partitions.length
     println("rddSize: " + rddSize.toString)
     println("partitionSize: " + partitionSize.toString)
     conf.set("mapreduce.input.fileinputformat.split.minsize", partitionSize.toString)
