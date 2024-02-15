@@ -176,7 +176,7 @@ echo ${SPARK_MASTER_ADDRESS}
 
 # Submit Spark job to format the BLAST DB
 echo "Formatting BLAST DB"
-"{$SPARK_HOME}"/bin/spark-submit --master ${SPARK_MASTER_ADDRESS} --verbose --conf "spark.local.dir=${SPARK_LOCAL_DIRECTORY}" --conf "spark.network.timeout=3600" --conf "spark.driver.extraJavaOptions=-XX:MaxHeapSize=220g" --conf "spark.worker.extraJavaOptions=-XX:MaxHeapSize=220g" --conf "spark.driver.memory=192g" --conf "spark.executor.memory=192g" --executor-cores 1 --class SparkLeMakeDB target/scala-2.11/simple-project_2.11-1.0.jar ${PARTITIONS} ${INPUT_PATH} "${SLB_WORKDIR}/formatdbScript" ${OUTPUT_PATH} ${DB_TYPE} &> output_makedb_${WORKERS};
+"${SPARK_HOME}"/bin/spark-submit --master ${SPARK_MASTER_ADDRESS} --verbose --conf "spark.local.dir=${SPARK_LOCAL_DIRECTORY}" --conf "spark.network.timeout=3600" --conf "spark.driver.extraJavaOptions=-XX:MaxHeapSize=220g" --conf "spark.worker.extraJavaOptions=-XX:MaxHeapSize=220g" --conf "spark.driver.memory=192g" --conf "spark.executor.memory=192g" --executor-cores 1 --class SparkLeMakeDB "${COMPILED_SCALA_DIRECTORY}" ${PARTITIONS} ${INPUT_PATH} "${SLB_WORKDIR}/formatdbScript" ${OUTPUT_PATH} ${DB_TYPE} &> output_makedb_${WORKERS};
 echo "DB Formatting Done"
 
 # Copy to VAST
@@ -197,7 +197,7 @@ NUM_ALIGNMENTS=10
 
 # Submit Spark job to perform blast search
 echo "Starting BLAST Search"
-"${SPARK_HOME}"/bin/spark-submit --master ${SPARK_MASTER_ADDRESS} --verbose --conf "spark.local.dir=${SPARK_LOCAL_DIRECTORY}" --conf "spark.network.timeout=3600" --conf "spark.driver.extraJavaOptions=-XX:MaxHeapSize=120g" --conf "spark.worker.extraJavaOptions=-XX:MaxHeapSize=100g" --conf "spark.driver.memory=4g" --conf "spark.executor.memory=4g" --class SparkLeBLASTSearch target/scala-2.11/simple-project_2.11-1.0.jar "${DATABASE}${partitionsIDs}" ${QUERY} ${DATABASE} "${SLB_WORKDIR}/blastSearchScript_2.12_blastn" ${dbLen} ${numSeq} ${GAP_OPEN} ${GAP_EXTEND} ${outfmt} ${NUM_ALIGNMENTS} &> output_balst_search_${WORKERS}
+"${SPARK_HOME}"/bin/spark-submit --master ${SPARK_MASTER_ADDRESS} --verbose --conf "spark.local.dir=${SPARK_LOCAL_DIRECTORY}" --conf "spark.network.timeout=3600" --conf "spark.driver.extraJavaOptions=-XX:MaxHeapSize=120g" --conf "spark.worker.extraJavaOptions=-XX:MaxHeapSize=100g" --conf "spark.driver.memory=4g" --conf "spark.executor.memory=4g" --class SparkLeBLASTSearch "${COMPILED_SCALA_DIRECTORY}" "${DATABASE}${partitionsIDs}" ${QUERY} ${DATABASE} "${SLB_WORKDIR}/blastSearchScript_2.12_blastn" ${dbLen} ${numSeq} ${GAP_OPEN} ${GAP_EXTEND} ${outfmt} ${NUM_ALIGNMENTS} &> output_balst_search_${WORKERS}
 echo "BLAST Search Done"
 
 HOST_NUMBER=$(echo ${SPARK_MASTER_ADDRESS} | grep -o "[0-9]*" | head -n 1)
