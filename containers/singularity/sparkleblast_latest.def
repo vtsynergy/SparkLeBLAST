@@ -1,26 +1,49 @@
-Bootstrap: docker
-From: vatai/sparkleblast-base:latest
+Bootstrap: debootstrap
+OSVersion: ubuntu22.04
 
-# %file
-#     some_data.tar.gz  /
+%file
+    ncbi-blast-2.13.0+-src.tar.gz  /
 
 %post
+    # Update and install necessary packages
+    apt-get update
+    apt-get upgrade -y
+    apt-get install -y wget curl openjdk-8-jdk ant build-essential scala dropbear openssh-client openssh-server
+    
+    # Install NCBI BLAST
+    tar -xvf /opt/ncbi-blast-2.13.0+-src.tar.gz -C /opt
+    cd /opt/ncbi-blast-2.13.0+-src/c++
+    ./configure
+    make -j
+    
+    # Install Apache Spark
+    wget https://archive.apache.org/dist/spark/spark-2.2.0/spark-2.2.0-bin-hadoop2.6.tgz -P /opt
+    tar -xvf /opt/spark-2.2.0-bin-hadoop2.6.tgz -C /opt
+
+    #Install hadoop
+    wget https://github.com/glennklockwood/myhadoop/archive/refs/tags/v0.30.tar.gz -P /opt
+    tar -xvf /opt/v0.30.tar.gz -C /opt
+    
+    # Install sbt
+    wget https://github.com/sbt/sbt/releases/download/v1.8.2/sbt-1.8.2.tgz -P /opt
+    tar -xvf /opt/sbt-1.8.2.tgz -C /opt
+
+    # Download and set up SparkLeBLAST
     curl -L https://github.com/vtsynergy/SparkLeBLAST/tarball/master -o /opt/sparkleblast.tgz
     tar -xvf /opt/sparkleblast.tgz -C /opt
     mv /opt/vtsynergy-* /opt/sparkleblast
     cd /opt/sparkleblast
     /opt/sbt/bin/sbt package
     cd /
+    
+    # Add a new user
     useradd -ms /bin/bash slb
 
 %environment
     export SPARK_HOME=/opt/spark-2.2.0-bin-hadoop2.6
-    export NCBI_BLAST_PATH=/opt/ncbi-blast-2.13.0+/c++/ReleaseMT
+    export NCBI_BLAST_PATH=/opt/ncbi-blast-2.13.0+-src/bin/blastp
     export SLB_WORKDIR=/opt/sparkleblast
 
-# %runscript
-#     python $*
-
 %labels
-    Author emil.vatai@riken.jp,karimy@vt.edu
-    Version v0.1.0
+    Author: emil.vatai@riken.jp, karimy@vt.edu
+    Version: v0.1.0

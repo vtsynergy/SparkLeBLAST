@@ -1,0 +1,241 @@
+Using properties file: null
+Parsed arguments:
+  master                  spark://inf040:7077
+  deployMode              null
+  executorMemory          4g
+  executorCores           null
+  totalExecutorCores      null
+  propertiesFile          null
+  driverMemory            4g
+  driverCores             null
+  driverExtraClassPath    null
+  driverExtraLibraryPath  null
+  driverExtraJavaOptions  -XX:MaxHeapSize=120g
+  supervise               false
+  queue                   null
+  numExecutors            null
+  files                   null
+  pyFiles                 null
+  archives                null
+  mainClass               SparkLeBLASTSearch
+  primaryResource         file:/projects/synergy_lab/ritvik/Voltron/SparkLeBLAST/target/scala-2.11/simple-project_2.11-1.0.jar
+  name                    SparkLeBLASTSearch
+  childArgs               [/localscratch/uniprot_sprot_formatted_partitionsIDs /fastscratch/karimy/blastDB/geobacter_8_partitions/GeobacterMetallireducens_8.fasta /localscratch/uniprot_sprot_formatted /projects/synergy_lab/ritvik/Voltron/SparkLeBLAST/blastSearchScript_2.12_blastn 10 1 6 10]
+  jars                    null
+  packages                null
+  packagesExclusions      null
+  repositories            null
+  verbose                 true
+
+Spark properties used, including those specified through
+ --conf and those from the properties file null:
+  (spark.local.dir,/home/ritvikp/tmpSpark)
+  (spark.network.timeout,3600)
+  (spark.driver.memory,4g)
+  (spark.executor.memory,4g)
+  (spark.driver.extraJavaOptions,-XX:MaxHeapSize=120g)
+  (spark.worker.extraJavaOptions,-XX:MaxHeapSize=100g)
+
+    
+Main class:
+SparkLeBLASTSearch
+Arguments:
+/localscratch/uniprot_sprot_formatted_partitionsIDs
+/fastscratch/karimy/blastDB/geobacter_8_partitions/GeobacterMetallireducens_8.fasta
+/localscratch/uniprot_sprot_formatted
+/projects/synergy_lab/ritvik/Voltron/SparkLeBLAST/blastSearchScript_2.12_blastn
+10
+1
+6
+10
+System properties:
+(spark.local.dir,/home/ritvikp/tmpSpark)
+(spark.network.timeout,3600)
+(spark.executor.memory,4g)
+(spark.driver.memory,4g)
+(SPARK_SUBMIT,true)
+(spark.app.name,SparkLeBLASTSearch)
+(spark.driver.extraJavaOptions,-XX:MaxHeapSize=120g)
+(spark.jars,file:/projects/synergy_lab/ritvik/Voltron/SparkLeBLAST/target/scala-2.11/simple-project_2.11-1.0.jar)
+(spark.submit.deployMode,client)
+(spark.worker.extraJavaOptions,-XX:MaxHeapSize=100g)
+(spark.master,spark://inf040:7077)
+Classpath elements:
+file:/projects/synergy_lab/ritvik/Voltron/SparkLeBLAST/target/scala-2.11/simple-project_2.11-1.0.jar
+
+
+Using Spark's default log4j profile: org/apache/spark/log4j-defaults.properties
+24/02/19 17:56:29 INFO SparkContext: Running Spark version 2.2.0
+WARNING: An illegal reflective access operation has occurred
+WARNING: Illegal reflective access by org.apache.hadoop.security.authentication.util.KerberosUtil (file:/projects/synergy_lab/ritvik/Voltron/Dependencies/spark-2.2.0-bin-hadoop2.6/jars/hadoop-auth-2.6.5.jar) to method sun.security.krb5.Config.getInstance()
+WARNING: Please consider reporting this to the maintainers of org.apache.hadoop.security.authentication.util.KerberosUtil
+WARNING: Use --illegal-access=warn to enable warnings of further illegal reflective access operations
+WARNING: All illegal access operations will be denied in a future release
+24/02/19 17:56:29 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+24/02/19 17:56:30 WARN SparkConf: In Spark 1.0 and later spark.local.dir will be overridden by the value set by the cluster manager (via SPARK_LOCAL_DIRS in mesos/standalone and LOCAL_DIRS in YARN).
+24/02/19 17:56:30 INFO SparkContext: Submitted application: SparkLeBLASTSearch
+24/02/19 17:56:30 INFO SecurityManager: Changing view acls to: ritvikp
+24/02/19 17:56:30 INFO SecurityManager: Changing modify acls to: ritvikp
+24/02/19 17:56:30 INFO SecurityManager: Changing view acls groups to: 
+24/02/19 17:56:30 INFO SecurityManager: Changing modify acls groups to: 
+24/02/19 17:56:30 INFO SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users  with view permissions: Set(ritvikp); groups with view permissions: Set(); users  with modify permissions: Set(ritvikp); groups with modify permissions: Set()
+24/02/19 17:56:30 INFO Utils: Successfully started service 'sparkDriver' on port 43498.
+24/02/19 17:56:30 INFO SparkEnv: Registering MapOutputTracker
+24/02/19 17:56:30 INFO SparkEnv: Registering BlockManagerMaster
+24/02/19 17:56:30 INFO BlockManagerMasterEndpoint: Using org.apache.spark.storage.DefaultTopologyMapper for getting topology information
+24/02/19 17:56:30 INFO BlockManagerMasterEndpoint: BlockManagerMasterEndpoint up
+24/02/19 17:56:30 INFO DiskBlockManager: Created local directory at /home/ritvikp/tmpSpark/blockmgr-89bce03b-e07b-4b7c-8eed-738016f57fc7
+24/02/19 17:56:30 INFO MemoryStore: MemoryStore started with capacity 71.8 GB
+24/02/19 17:56:30 INFO SparkEnv: Registering OutputCommitCoordinator
+24/02/19 17:56:30 INFO Utils: Successfully started service 'SparkUI' on port 4040.
+24/02/19 17:56:30 INFO SparkUI: Bound SparkUI to 0.0.0.0, and started at http://10.91.254.241:4040
+24/02/19 17:56:30 INFO SparkContext: Added JAR file:/projects/synergy_lab/ritvik/Voltron/SparkLeBLAST/target/scala-2.11/simple-project_2.11-1.0.jar at spark://10.91.254.241:43498/jars/simple-project_2.11-1.0.jar with timestamp 1708383390770
+24/02/19 17:56:30 INFO StandaloneAppClient$ClientEndpoint: Connecting to master spark://inf040:7077...
+24/02/19 17:56:30 WARN StandaloneAppClient$ClientEndpoint: Failed to connect to master inf040:7077
+org.apache.spark.SparkException: Exception thrown in awaitResult: 
+	at org.apache.spark.util.ThreadUtils$.awaitResult(ThreadUtils.scala:205)
+	at org.apache.spark.rpc.RpcTimeout.awaitResult(RpcTimeout.scala:75)
+	at org.apache.spark.rpc.RpcEnv.setupEndpointRefByURI(RpcEnv.scala:100)
+	at org.apache.spark.rpc.RpcEnv.setupEndpointRef(RpcEnv.scala:108)
+	at org.apache.spark.deploy.client.StandaloneAppClient$ClientEndpoint$$anonfun$tryRegisterAllMasters$1$$anon$1.run(StandaloneAppClient.scala:106)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:515)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
+	at java.base/java.lang.Thread.run(Thread.java:834)
+Caused by: java.io.IOException: Failed to connect to inf040/10.91.0.40:7077
+	at org.apache.spark.network.client.TransportClientFactory.createClient(TransportClientFactory.java:232)
+	at org.apache.spark.network.client.TransportClientFactory.createClient(TransportClientFactory.java:182)
+	at org.apache.spark.rpc.netty.NettyRpcEnv.createClient(NettyRpcEnv.scala:197)
+	at org.apache.spark.rpc.netty.Outbox$$anon$1.call(Outbox.scala:194)
+	at org.apache.spark.rpc.netty.Outbox$$anon$1.call(Outbox.scala:190)
+	... 4 more
+Caused by: io.netty.channel.AbstractChannel$AnnotatedConnectException: Connection refused: inf040/10.91.0.40:7077
+	at java.base/sun.nio.ch.SocketChannelImpl.checkConnect(Native Method)
+	at java.base/sun.nio.ch.SocketChannelImpl.finishConnect(SocketChannelImpl.java:779)
+	at io.netty.channel.socket.nio.NioSocketChannel.doFinishConnect(NioSocketChannel.java:257)
+	at io.netty.channel.nio.AbstractNioChannel$AbstractNioUnsafe.finishConnect(AbstractNioChannel.java:291)
+	at io.netty.channel.nio.NioEventLoop.processSelectedKey(NioEventLoop.java:631)
+	at io.netty.channel.nio.NioEventLoop.processSelectedKeysOptimized(NioEventLoop.java:566)
+	at io.netty.channel.nio.NioEventLoop.processSelectedKeys(NioEventLoop.java:480)
+	at io.netty.channel.nio.NioEventLoop.run(NioEventLoop.java:442)
+	at io.netty.util.concurrent.SingleThreadEventExecutor$2.run(SingleThreadEventExecutor.java:131)
+	at io.netty.util.concurrent.DefaultThreadFactory$DefaultRunnableDecorator.run(DefaultThreadFactory.java:144)
+	... 1 more
+24/02/19 17:56:50 INFO StandaloneAppClient$ClientEndpoint: Connecting to master spark://inf040:7077...
+24/02/19 17:56:50 WARN StandaloneAppClient$ClientEndpoint: Failed to connect to master inf040:7077
+org.apache.spark.SparkException: Exception thrown in awaitResult: 
+	at org.apache.spark.util.ThreadUtils$.awaitResult(ThreadUtils.scala:205)
+	at org.apache.spark.rpc.RpcTimeout.awaitResult(RpcTimeout.scala:75)
+	at org.apache.spark.rpc.RpcEnv.setupEndpointRefByURI(RpcEnv.scala:100)
+	at org.apache.spark.rpc.RpcEnv.setupEndpointRef(RpcEnv.scala:108)
+	at org.apache.spark.deploy.client.StandaloneAppClient$ClientEndpoint$$anonfun$tryRegisterAllMasters$1$$anon$1.run(StandaloneAppClient.scala:106)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:515)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
+	at java.base/java.lang.Thread.run(Thread.java:834)
+Caused by: java.io.IOException: Failed to connect to inf040/10.91.0.40:7077
+	at org.apache.spark.network.client.TransportClientFactory.createClient(TransportClientFactory.java:232)
+	at org.apache.spark.network.client.TransportClientFactory.createClient(TransportClientFactory.java:182)
+	at org.apache.spark.rpc.netty.NettyRpcEnv.createClient(NettyRpcEnv.scala:197)
+	at org.apache.spark.rpc.netty.Outbox$$anon$1.call(Outbox.scala:194)
+	at org.apache.spark.rpc.netty.Outbox$$anon$1.call(Outbox.scala:190)
+	... 4 more
+Caused by: io.netty.channel.AbstractChannel$AnnotatedConnectException: Connection refused: inf040/10.91.0.40:7077
+	at java.base/sun.nio.ch.SocketChannelImpl.checkConnect(Native Method)
+	at java.base/sun.nio.ch.SocketChannelImpl.finishConnect(SocketChannelImpl.java:779)
+	at io.netty.channel.socket.nio.NioSocketChannel.doFinishConnect(NioSocketChannel.java:257)
+	at io.netty.channel.nio.AbstractNioChannel$AbstractNioUnsafe.finishConnect(AbstractNioChannel.java:291)
+	at io.netty.channel.nio.NioEventLoop.processSelectedKey(NioEventLoop.java:631)
+	at io.netty.channel.nio.NioEventLoop.processSelectedKeysOptimized(NioEventLoop.java:566)
+	at io.netty.channel.nio.NioEventLoop.processSelectedKeys(NioEventLoop.java:480)
+	at io.netty.channel.nio.NioEventLoop.run(NioEventLoop.java:442)
+	at io.netty.util.concurrent.SingleThreadEventExecutor$2.run(SingleThreadEventExecutor.java:131)
+	at io.netty.util.concurrent.DefaultThreadFactory$DefaultRunnableDecorator.run(DefaultThreadFactory.java:144)
+	... 1 more
+24/02/19 17:57:10 INFO StandaloneAppClient$ClientEndpoint: Connecting to master spark://inf040:7077...
+24/02/19 17:57:10 WARN StandaloneAppClient$ClientEndpoint: Failed to connect to master inf040:7077
+org.apache.spark.SparkException: Exception thrown in awaitResult: 
+	at org.apache.spark.util.ThreadUtils$.awaitResult(ThreadUtils.scala:205)
+	at org.apache.spark.rpc.RpcTimeout.awaitResult(RpcTimeout.scala:75)
+	at org.apache.spark.rpc.RpcEnv.setupEndpointRefByURI(RpcEnv.scala:100)
+	at org.apache.spark.rpc.RpcEnv.setupEndpointRef(RpcEnv.scala:108)
+	at org.apache.spark.deploy.client.StandaloneAppClient$ClientEndpoint$$anonfun$tryRegisterAllMasters$1$$anon$1.run(StandaloneAppClient.scala:106)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:515)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
+	at java.base/java.lang.Thread.run(Thread.java:834)
+Caused by: java.io.IOException: Failed to connect to inf040/10.91.0.40:7077
+	at org.apache.spark.network.client.TransportClientFactory.createClient(TransportClientFactory.java:232)
+	at org.apache.spark.network.client.TransportClientFactory.createClient(TransportClientFactory.java:182)
+	at org.apache.spark.rpc.netty.NettyRpcEnv.createClient(NettyRpcEnv.scala:197)
+	at org.apache.spark.rpc.netty.Outbox$$anon$1.call(Outbox.scala:194)
+	at org.apache.spark.rpc.netty.Outbox$$anon$1.call(Outbox.scala:190)
+	... 4 more
+Caused by: io.netty.channel.AbstractChannel$AnnotatedConnectException: Connection refused: inf040/10.91.0.40:7077
+	at java.base/sun.nio.ch.SocketChannelImpl.checkConnect(Native Method)
+	at java.base/sun.nio.ch.SocketChannelImpl.finishConnect(SocketChannelImpl.java:779)
+	at io.netty.channel.socket.nio.NioSocketChannel.doFinishConnect(NioSocketChannel.java:257)
+	at io.netty.channel.nio.AbstractNioChannel$AbstractNioUnsafe.finishConnect(AbstractNioChannel.java:291)
+	at io.netty.channel.nio.NioEventLoop.processSelectedKey(NioEventLoop.java:631)
+	at io.netty.channel.nio.NioEventLoop.processSelectedKeysOptimized(NioEventLoop.java:566)
+	at io.netty.channel.nio.NioEventLoop.processSelectedKeys(NioEventLoop.java:480)
+	at io.netty.channel.nio.NioEventLoop.run(NioEventLoop.java:442)
+	at io.netty.util.concurrent.SingleThreadEventExecutor$2.run(SingleThreadEventExecutor.java:131)
+	at io.netty.util.concurrent.DefaultThreadFactory$DefaultRunnableDecorator.run(DefaultThreadFactory.java:144)
+	... 1 more
+24/02/19 17:57:30 ERROR StandaloneSchedulerBackend: Application has been killed. Reason: All masters are unresponsive! Giving up.
+24/02/19 17:57:30 WARN StandaloneSchedulerBackend: Application ID is not initialized yet.
+24/02/19 17:57:30 INFO Utils: Successfully started service 'org.apache.spark.network.netty.NettyBlockTransferService' on port 41685.
+24/02/19 17:57:30 INFO NettyBlockTransferService: Server created on 10.91.254.241:41685
+24/02/19 17:57:30 INFO BlockManager: Using org.apache.spark.storage.RandomBlockReplicationPolicy for block replication policy
+24/02/19 17:57:30 INFO SparkUI: Stopped Spark web UI at http://10.91.254.241:4040
+24/02/19 17:57:30 INFO BlockManagerMaster: Registering BlockManager BlockManagerId(driver, 10.91.254.241, 41685, None)
+24/02/19 17:57:30 INFO StandaloneSchedulerBackend: Shutting down all executors
+24/02/19 17:57:30 INFO BlockManagerMasterEndpoint: Registering block manager 10.91.254.241:41685 with 71.8 GB RAM, BlockManagerId(driver, 10.91.254.241, 41685, None)
+24/02/19 17:57:30 INFO CoarseGrainedSchedulerBackend$DriverEndpoint: Asking each executor to shut down
+24/02/19 17:57:30 INFO BlockManagerMaster: Registered BlockManager BlockManagerId(driver, 10.91.254.241, 41685, None)
+24/02/19 17:57:30 INFO BlockManager: Initialized BlockManager: BlockManagerId(driver, 10.91.254.241, 41685, None)
+24/02/19 17:57:30 WARN StandaloneAppClient$ClientEndpoint: Drop UnregisterApplication(null) because has not yet connected to master
+24/02/19 17:57:30 INFO MapOutputTrackerMasterEndpoint: MapOutputTrackerMasterEndpoint stopped!
+24/02/19 17:57:30 INFO MemoryStore: MemoryStore cleared
+24/02/19 17:57:30 INFO BlockManager: BlockManager stopped
+24/02/19 17:57:30 INFO BlockManagerMaster: BlockManagerMaster stopped
+24/02/19 17:57:30 INFO OutputCommitCoordinator$OutputCommitCoordinatorEndpoint: OutputCommitCoordinator stopped!
+24/02/19 17:57:30 INFO SparkContext: Successfully stopped SparkContext
+24/02/19 17:57:31 ERROR SparkContext: Error initializing SparkContext.
+java.lang.IllegalArgumentException: requirement failed: Can only call getServletHandlers on a running MetricsSystem
+	at scala.Predef$.require(Predef.scala:224)
+	at org.apache.spark.metrics.MetricsSystem.getServletHandlers(MetricsSystem.scala:91)
+	at org.apache.spark.SparkContext.<init>(SparkContext.scala:524)
+	at SparkLeBLASTSearch$.main(SparkLeBLASTSearch.scala:24)
+	at SparkLeBLASTSearch.main(SparkLeBLASTSearch.scala)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:566)
+	at org.apache.spark.deploy.SparkSubmit$.org$apache$spark$deploy$SparkSubmit$$runMain(SparkSubmit.scala:755)
+	at org.apache.spark.deploy.SparkSubmit$.doRunMain$1(SparkSubmit.scala:180)
+	at org.apache.spark.deploy.SparkSubmit$.submit(SparkSubmit.scala:205)
+	at org.apache.spark.deploy.SparkSubmit$.main(SparkSubmit.scala:119)
+	at org.apache.spark.deploy.SparkSubmit.main(SparkSubmit.scala)
+24/02/19 17:57:31 INFO SparkContext: SparkContext already stopped.
+Exception in thread "main" java.lang.IllegalArgumentException: requirement failed: Can only call getServletHandlers on a running MetricsSystem
+	at scala.Predef$.require(Predef.scala:224)
+	at org.apache.spark.metrics.MetricsSystem.getServletHandlers(MetricsSystem.scala:91)
+	at org.apache.spark.SparkContext.<init>(SparkContext.scala:524)
+	at SparkLeBLASTSearch$.main(SparkLeBLASTSearch.scala:24)
+	at SparkLeBLASTSearch.main(SparkLeBLASTSearch.scala)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:566)
+	at org.apache.spark.deploy.SparkSubmit$.org$apache$spark$deploy$SparkSubmit$$runMain(SparkSubmit.scala:755)
+	at org.apache.spark.deploy.SparkSubmit$.doRunMain$1(SparkSubmit.scala:180)
+	at org.apache.spark.deploy.SparkSubmit$.submit(SparkSubmit.scala:205)
+	at org.apache.spark.deploy.SparkSubmit$.main(SparkSubmit.scala:119)
+	at org.apache.spark.deploy.SparkSubmit.main(SparkSubmit.scala)
+24/02/19 17:57:31 INFO ShutdownHookManager: Shutdown hook called
+24/02/19 17:57:31 INFO ShutdownHookManager: Deleting directory /home/ritvikp/tmpSpark/spark-d769b126-300f-46c5-942b-61bb03813ecb
