@@ -12,10 +12,10 @@ import org.apache.spark.TaskContext;
 import java.io.BufferedOutputStream;
 import scala.math._;
 import scala.util.control._;
-
+import java.nio.file.Paths;
 
 object SparkLeMakeDB {
-  val hdfsAddr = "/home/karimy";
+  val hdfsAddr = "hdfs:///";
   def main(args: Array[String]) {
   val conf2 = new SparkConf().setAppName("SparkLeMakeDB")
     val sc = new SparkContext(conf2)
@@ -24,21 +24,30 @@ object SparkLeMakeDB {
     
     /* Set delimiter to split file in correct local*/
     conf.set("textinputformat.record.delimiter", "\n>")
-    val filePath = args(1)
+    val filePath = "file://" + args(1)
     var script = args(2)
     val dbName = args(3)
     val ncbiBlastPath = args(4)
     val slbWorkDir = args(5)
     val dbSizeBytes = args(6)
+    var copyScript = args(7)
 
+    println("copyScript BEFORE: " + copyScript)
     val partitionSize = dbSizeBytes.toFloat / splits.toFloat
     val partitionSizeInt = partitionSize.ceil.toLong
+
 
     println("dbSizeBytes: " + dbSizeBytes.toString())
     println("partitionSize: " + partitionSize.toString())
     println("partitionSizeInt: " + partitionSizeInt.toString())
     conf.set("mapreduce.input.fileinputformat.split.minsize", partitionSizeInt.toString)
     
+    val hdfs = FileSystem.get(conf)
+    val hdfsFilePathString = "hdfs:///" + Paths.get(dbName).getFileName
+    val filePathLocal = new Path(filePath)
+    val hdfsFilePath = new Path(hdfsFilePathString)
+    // hdfs.copyFromLocalFile(filePathLocal, hdfsFilePath)
+
     /* Read database into an RDD*/
     val dataset = sc.newAPIHadoopFile(filePath, classOf[TextInputFormat], classOf[LongWritable], classOf[Text],conf)
    
@@ -56,13 +65,13 @@ object SparkLeMakeDB {
 
     
     /* save partitions */
-    finalData.saveAsTextFile(dbName);
+    finalData.saveAsTextFile(hdfsFilePathString);
     // finalData.unpersist();
     
     
     /* write db specifications file */
-    val fs = FileSystem.get(sc.hadoopConfiguration);
-    val output = fs.create(new Path(dbName + "/database.dbs"));
+    // val fs = FileSystem.get(sc.hadoopConfiguration);
+    val output = hdfs.create(new Path(hdfsFilePathString + "/database.dbs"));
     val os = new BufferedOutputStream(output);
     os.write(dbsOutput.getBytes("UTF-8"))
     os.close()   
@@ -84,7 +93,15 @@ object SparkLeMakeDB {
     val partitionsList = getPartitionsList(splits.toInt)
     val partitionsRDD = sc.parallelize(partitionsList, splits.toInt)
 
-    
+    // Copy partitions
+    // val copyOut = partitionsRDD.map( name => hdfs.copyToLocalFile(new Path(hdfsFilePathString + "/" + name), new Path(dbName + "/" + name)))
+    copyScript = copyScript + " /" + Paths.get(dbName).getFileName + " " + dbName 
+    println("COPY SCRIPT: " + copyScript)
+    partitionsRDD.pipe(copyScript).saveAsTextFile(dbName + "_copyToLocal_logs");
+
+   // Copy dabatase.dbs
+   hdfs.copyToLocalFile(new Path(hdfsFilePathString + "/database.dbs"), new Path(dbName + "/database.dbs"))
+
     // pass db path as argument to formatting script
     script = script + " " + dbName
 
