@@ -10,7 +10,6 @@
 #SBATCH --export=ALL         
 #SBATCH --chdir=/local       
 
-# export TMPDIR=/tmp
-singularity build --fakeroot sparkleblast_latest.sif sparkleblast_latest_x86.def
+singularity build --fakeroot sparkleblast_latest.sif sparkleblast_latest.def
 
 echo "DONE"

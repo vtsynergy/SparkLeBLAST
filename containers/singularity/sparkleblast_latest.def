@@ -1,7 +1,7 @@
-Bootstrap: debootstrap
-OSVersion: ubuntu22.04
+Bootstrap: docker
+From: ubuntu:22.04
 
-%file
+%files
     ncbi-blast-2.13.0+-src.tar.gz  /
 
 %post
