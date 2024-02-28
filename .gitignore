@@ -2,3 +2,4 @@
 *.log
 *ncbi-blast-2.13.0+-src.tar.gz
 *target
+*.sif

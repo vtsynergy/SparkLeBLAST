@@ -1,8 +1,8 @@
 Bootstrap: docker
-From: ubuntu:22.04
+From: ubuntu:24.04
 
 %files
-    ncbi-blast-2.13.0+-src.tar.gz  /
+    ncbi-blast-2.13.0+-src.tar.gz  /opt
 
 %post
     # Update and install necessary packages
