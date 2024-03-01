@@ -1,17 +1,18 @@
 #!/bin/bash
 
-# Usage: ./split_fasta.sh input.fasta num_segments
-# Example: ./split_fasta.sh my_sequences.fasta 5
+# Usage: ./split_query.sh DBFile query.fasta num_segments
+# Example: ./split_query.sh db.fasta my_sequences.fasta 5
 
 if [ $# -ne 2 ]; then
-    echo "Usage: $0 input.fasta num_segments"
+    echo "Usage: $0 DBFile query.fasta num_segments"
     exit 1
 fi
 
-input_file="$1"  # Input FASTA file
-num_segments="$2"  # Number of segments to split into
+DBFILE=$1
+input_file="$2"  
+num_segments="$3" 
 
-output_dir="fasta_segments"
+output_dir="query_segments"
 mkdir -p "$output_dir"
 
 total_sequences=$(grep -c '^>' "$input_file")
@@ -35,4 +36,8 @@ awk -v num_seqs="$sequences_per_segment" -v num_segments="$num_segments" '
 
 echo "$num_segments segments made"
 echo "Segments saved in the '$output_dir' directory."
+
+for segment_file in "$output_dir"/*.fasta; do
+    ./run_spark_jobs.sh "$segment_file"
+done
 
