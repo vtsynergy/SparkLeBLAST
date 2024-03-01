@@ -12,3 +12,4 @@ project
 fasta_segments
 *.swp
 data
+hosts
