@@ -3,3 +3,12 @@
 *ncbi-blast-2.13.0+-src.tar.gz
 *target
 *.sif
+*.out
+log
+work
+run
+hosts-*
+project
+fasta_segments
+*.swp
+data
