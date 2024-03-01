@@ -38,6 +38,6 @@ echo "$num_segments segments made"
 echo "Segments saved in the '$output_dir' directory."
 
 for segment_file in "$output_dir"/*.fasta; do
-    ./run_spark_jobs.sh "$segment_file"
+    ./run_spark_jobs.sh $DBFILE $segment_file
 done
 
