@@ -12,15 +12,9 @@ directory="$1"
 
 for folder in "$directory"/*; do
   if [ -d "$folder" ]; then
-    for file in "$folder/"*[^[:cntrl:]] ; do
-      case "${file##*.}" in
-        "fasta")  
-          cat "$file" >> "$OUTPUT_FILE"
-          ;;
-        *)  # If not a FASTA file, ignore it
-          echo "Skipping non-FASTA file: $file"
-          ;;
-      esac
+    fasta_files=($(ls "$folder"/*.fasta | sort -V))
+    for file in "${fasta_files[@]}"; do
+      cat "$file" >> "$OUTPUT_FILE"
     done
   fi
 done
