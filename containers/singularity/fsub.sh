@@ -65,14 +65,13 @@ mkdir -p ${OUTPUT_DIR}
 pjsub ${PJSUB_ARGS[@]} << EOF
 OF_PROC=${OUTPUT_DIR}/\${PJM_JOBID}-${NAME}/mpi
 
-rm -rf  hosts master_success
 mkdir -p log run work \$(dirname \${OF_PROC})
 
 mpiexec -of-proc \${OF_PROC} ./gatherhosts_ips hosts-\${PJM_JOBID}
 mpiexec -of-proc \${OF_PROC} ./start_spark_cluster.sh &
 bash -x ./run_spark_jobs.sh ${DBFILE} ${QUERYFILE}
 # mpiexec -of-proc \${OF_PROC} ./stop_spark_cluster.sh &
-rm -rf master_success
+rm -rf master_success-\${PJM_JOBID}
 echo FSUB IS DONE
 EOF
 

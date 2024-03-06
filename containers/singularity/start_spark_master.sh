@@ -18,5 +18,5 @@ singularity exec --env SPARK_MASTER_HOST=${master_node} instance://spark-process
 
 sleep 5
 
-echo ${master_node} > master_success
+echo ${master_node} > master_success-${PJM_JOBID}
 
