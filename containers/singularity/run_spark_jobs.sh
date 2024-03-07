@@ -51,10 +51,7 @@ SEARCH_ARGS=(
 )
 
 if [ ! -e ${HOST_MAKEDB_OUT_DIR}/database.dbs ]; then
-    if [ ${PMIX_RANK} -eq "0" ]; then
-    #if [ ${PMIX_RANK}=="0" ]; then
-        rm -rf ${HOST_MAKEDB_OUT_DIR}
-    fi
+    rm -rf ${HOST_MAKEDB_OUT_DIR}
     singularity exec "${SINGULARITY_ARGS[@]}" sparkleblast_latest.sif \
         /opt/sparkleblast/SparkLeMakeDB.sh ${MAKEDB_ARGS[@]}
 fi
