@@ -8,6 +8,6 @@
 #PJM -x SINGULARITY_TMPDIR=/local
 
 export TMPDIR=/worktmp
-singularity build --fakeroot --no-setgroups sparkleblast_latest.sif sparkleblast_latest.def
+singularity build --fakeroot --no-setgroups sparkleblast_latest.sif fsparkleblast_latest.def
 
 echo "DONE"

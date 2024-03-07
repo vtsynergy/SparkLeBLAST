@@ -1,0 +1,26 @@
+Bootstrap: docker
+From: vatai/sparkleblast-base:latest
+
+# %file
+#     some_data.tar.gz  /
+
+%post
+    curl -L https://github.com/vtsynergy/SparkLeBLAST/tarball/master -o /opt/sparkleblast.tgz
+    tar -xvf /opt/sparkleblast.tgz -C /opt
+    mv /opt/vtsynergy-* /opt/sparkleblast
+    cd /opt/sparkleblast
+    /opt/sbt/bin/sbt package
+    cd /
+    useradd -ms /bin/bash slb
+
+%environment
+    export SPARK_HOME=/opt/spark-2.2.0-bin-hadoop2.6
+    export NCBI_BLAST_PATH=/opt/ncbi-blast-2.13.0+/c++/ReleaseMT
+    export SLB_WORKDIR=/opt/sparkleblast
+
+# %runscript
+#     python $*
+
+%labels
+    Author emil.vatai@riken.jp,karimy@vt.edu
+    Version v0.1.0
