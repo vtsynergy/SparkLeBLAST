@@ -4,8 +4,8 @@ import threading
 
 def concatenate_files(output_base_dir):
     temp_filename = os.path.join(output_base_dir, 'temp.txt')
-    files = [f for f in os.listdir(output_base_dir) if f.startswith("output_") and f.endswith(".txt")]
-    files.sort(key=lambda x: int(x.split('_')[1].split('.')[0]))
+    files = [f for f in os.listdir(output_base_dir) if f.startswith("part-")]
+    files.sort(key=lambda x: int(x.split('-')[1]))
     with open(temp_filename, 'w') as temp_file:
         for filename in files:
             with open(os.path.join(output_base_dir, filename), 'r') as file:
