@@ -12,19 +12,19 @@ def concatenate_files(output_base_dir):
                 temp_file.write(file.read())
 
 def main(directory):
-    output_final_dir = os.path.join(directory, 'output_final')
-    base_dirs = [d for d in os.listdir(output_final_dir) if os.path.isdir(os.path.join(output_final_dir, d))]
+    base_dirs = [d for d in os.listdir(directory) if os.path.isdir(os.path.join(directory, d)) and "output" in d]
 
     threads = []
     for base_dir in base_dirs:
-        thread = threading.Thread(target=concatenate_files, args=(os.path.join(output_final_dir, base_dir),))
+        output_final_dir = os.path.join(directory, base_dir, 'output_final')
+        thread = threading.Thread(target=concatenate_files, args=(output_final_dir,))
         thread.start()
         threads.append(thread)
 
     for thread in threads:
         thread.join()
 
-    temp_files = [os.path.join(output_final_dir, base_dir, 'temp.txt') for base_dir in base_dirs]
+    temp_files = [os.path.join(directory, base_dir, 'output_final', 'temp.txt') for base_dir in base_dirs]
     temp_files.sort()
 
     with open('output_all.txt', 'w') as final_file:
@@ -43,4 +43,3 @@ if __name__ == "__main__":
 
     directory = sys.argv[1]
     main(directory)
-
