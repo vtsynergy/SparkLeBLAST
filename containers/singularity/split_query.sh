@@ -3,19 +3,18 @@
 # Usage: ./split_query.sh query.fasta num_segments /path/to/output_dir
 # Example: ./split_query.sh my_sequences.fasta 5 /path/to/output_dir
 
-if [ $# -ne 2 ]; then
+if [ $# -ne 3 ]; then
     echo "Usage: $0 query.fasta num_segments /path/to/output_dir"
     exit 1
 fi
 
-DBFILE=$1
-input_file="$2"  
-num_segments="$3" 
-output_dir="$4"
+input_file="$1"  
+num_segments="$2" 
+output_dir="$3"
 
 total_sequences=$(grep -c '^>' "$input_file")
 
-sequences_per_segment=$((total_sequences / num_segments))
+sequences_per_segment=$(( (total_sequences + num_segments - 1) / num_segments))
 
 awk -v num_seqs="$sequences_per_segment" -v num_segments="$num_segments" '
   BEGIN {n_seq=0; part=0; outfile=sprintf("'$output_dir'/segment_%02d.fasta", part)}
