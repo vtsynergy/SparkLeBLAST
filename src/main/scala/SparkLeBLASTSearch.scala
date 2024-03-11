@@ -102,7 +102,7 @@ object SparkLeBLASTSearch {
     else if (outputFormat == 6){
         // output format 8 merging logic goes here
         conf.set("textinputformat.record.delimiter", "\n")
-        val resultUnsorted = sc.newAPIHadoopFile(outputPath + "output_intermediate", classOf[TextInputFormat],
+        val resultUnsorted = sc.newAPIHadoopFile(outputPath + "/output_intermediate", classOf[TextInputFormat],
                                               classOf[LongWritable], classOf[Text],conf)
         val resultByQuery = resultUnsorted.map{ case (k , v) => v.toString }
                                   .filter(line => line.split("\t").length > 2)

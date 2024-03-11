@@ -1,13 +1,13 @@
 Bootstrap: docker
 From: vatai/sparkleblast-base:latest
 
-# %file
-#     some_data.tar.gz  /
+%files
+    ../../*.* /opt/sparkleblast/
+    ../../src /opt/sparkleblast/
+    ../../blastSearchScript /opt/sparkleblast/
+    ../../formatdbScript /opt/sparkleblast/
 
 %post
-    curl -L https://github.com/vtsynergy/SparkLeBLAST/tarball/master -o /opt/sparkleblast.tgz
-    tar -xvf /opt/sparkleblast.tgz -C /opt
-    mv /opt/vtsynergy-* /opt/sparkleblast
     cd /opt/sparkleblast
     /opt/sbt/bin/sbt package
     cd /
