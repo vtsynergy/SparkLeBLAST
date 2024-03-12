@@ -7,24 +7,38 @@ NGROUPS=${1:-1}
 PART_SIZE=$(( $PJM_MPI_PROC / $NGROUPS ))
 GROUP_RANK=$(( $PMIX_RANK / $PART_SIZE ))
 SUB_RANK=$(( $PMIX_RANK % $PART_SIZE ))
-HOSTS_FILE=hosts-${PJM_JOBID}-${GROUP_RANK}
-MASTER_FILE=master-${PJM_JOBID}-${GROUP_RANK}
 
+OUTFILES=outfiles/${PJM_JOBID}
+mkdir -p ${OUTFILES}
+TMPFILES=tmpfile/${PJM_JOBID}
+mkdir -p ${TMPFILES}
+OUTLOGDIR=${OUTFILES}/log
+mkdir -p ${OUTLOGDIR}
+OUTWORKDIR=${OUTFILES}/work
+mkdir -p ${OUTWORKDIR}
+OUTRUNDIR=${OUTFILES}/run
+mkdir -p ${OUTRUNDIR}
+
+HOSTS_FILE=${TMPFILES}/hosts-${PJM_JOBID}-${GROUP_RANK}
+MASTER_FILE=${TMPFILES}/master-${PJM_JOBID}-${GROUP_RANK}
 
 start_master() {
-
     SINGULARITY_ARGS=(
-    --bind $(mktemp -d run/`hostname`_XXXX):/run
-    --bind log/:/opt/spark-2.2.0-bin-hadoop2.6/logs
-    --bind work/:/opt/spark-2.2.0-bin-hadoop2.6/work
-    --bind ${HOSTS_FILE}:/etc/hosts
-    --bind data:/tmp/data
-    --disable-cache
+        --bind $(mktemp -d ${OUTRUNDIR}/$(hostname)_XXXX):/run
+        --bind log/:/opt/spark-2.2.0-bin-hadoop2.6/logs
+        --bind work/:/opt/spark-2.2.0-bin-hadoop2.6/work
+        --bind ${HOSTS_FILE}:/etc/hosts
+        --bind data:/tmp/data
+        --disable-cache
     )
-    singularity instance start ${SINGULARITY_ARGS[@]} sparkleblast_latest.sif spark-process
+    singularity \
+        instance start ${SINGULARITY_ARGS[@]} \
+        sparkleblast_latest.sif spark-process
 
     echo "starting master on node: $(hostname)"
-    singularity exec --env SPARK_MASTER_HOST=$(hostname) instance://spark-process /opt/spark-2.2.0-bin-hadoop2.6/sbin/start-master.sh
+    singularity exec --env SPARK_MASTER_HOST=$(hostname) \
+                instance://spark-process \
+                /opt/spark-2.2.0-bin-hadoop2.6/sbin/start-master.sh
 
     sleep 5
 
