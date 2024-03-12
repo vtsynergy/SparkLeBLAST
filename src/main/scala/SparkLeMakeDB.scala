@@ -70,7 +70,7 @@ object SparkLeMakeDB {
     
     
     // map partition with index
-    val mapped =   finalData.mapPartitionsWithIndex{
+    /* val mapped =   finalData.mapPartitionsWithIndex{
                         // 'index' represents the Partition No
                         // 'iterator' to iterate through all elements
                         //                         in the partition
@@ -79,20 +79,23 @@ object SparkLeMakeDB {
                            var parName = getPartitionNumber(index)
                            myList.map(x => parName).iterator
                         }
-                     }
+                     } */
     //end map partition with index
+    val partitionsList = getPartitionsList(splits.toInt)
+    val partitionsRDD = sc.parallelize(partitionsList, splits.toInt)
+
     
     // pass db path as argument to formatting script
     script = script + " " + dbName
 
     
     try{  
-        mapped.pipe(script, env=Map("NCBI_BLAST_PATH" -> ncbiBlastPath , "SLB_WORKDIR" -> slbWorkDir)).saveAsTextFile(dbName + "_formatting_logs");
+        partitionsRDD.pipe(script, env=Map("NCBI_BLAST_PATH" -> ncbiBlastPath , "SLB_WORKDIR" -> slbWorkDir)).saveAsTextFile(dbName + "_formatting_logs");
     }
     catch {
       case e : Exception => { println("WARNING: NOT ALL PARTITIONS FORMATTED DUE TO: " + e) };
     } 
-    mapped.saveAsTextFile(dbName + "_partitionsIDs");
+    partitionsRDD.saveAsTextFile(dbName + "_partitionsIDs");
     sc.stop
     }
 
@@ -105,6 +108,15 @@ object SparkLeMakeDB {
       case e : Exception => { println("Error HDFS exception" + e) };
     }
   }
+
+  def getPartitionsList(splits: Int): Seq[String] = {
+      var partitionsList = Seq("part-00000")
+      for( index <- 1 to (splits - 1) ){
+          partitionsList = partitionsList :+ getPartitionNumber(index)
+      }
+      return partitionsList  
+  }
+
   def getPartitionNumber(index: Int): String = {
         var leadingZeros = "0";
         if ( index < 10 )

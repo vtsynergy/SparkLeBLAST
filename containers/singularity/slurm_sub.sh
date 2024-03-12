@@ -1,10 +1,10 @@
 #!/bin/bash
 
-set -x
+#set -x
 
 DBFILE=$1
 QUERYFILE=$2
-NPROC=$3
+export NPROC=$3
 ELAPSE=${4:-30:00}
 
 USAGE="$0 \${NPROC}"
@@ -29,14 +29,8 @@ else
     echo "$0 WARNING: git email not set!"
 fi
 
-if [ ${NPROC} -gt 384 ]; then
-  RSCGRP=large;
-else
-  RSCGRP=small;
-fi
 
 OUTPUT_DIR=output
-
 NAME=sparkle-${NPROC}
 PJSUB_ARGS=(
   -N ${NAME}
@@ -56,25 +50,40 @@ PJSUB_ARGS=(
   ${email_args}
 )
 
+SLURM_ARGS=(
+ -N ${NPROC}
+ -p p100_dev_q
+ -A hpcbigdata2
+ --exclusive
+ --time 01:00:00
+
+)
+
 if [[ "${CLEARALL^^}" =~ ^(YES|ON|TRUE)$ ]]; then 
   # must be outside pjsub
   rm -rf output run log work data/makedb_out data/search_out
 fi
 
 mkdir -p ${OUTPUT_DIR}
-pjsub ${PJSUB_ARGS[@]} << EOF
-OF_PROC=${OUTPUT_DIR}/\${PJM_JOBID}-${NAME}/mpi
+TMPFILE=$(mktemp)
+cat > $TMPFILE << EOF
+#!/bin/bash
+module reset
+module load OpenMPI
+module load containers/singularity
+OF_PROC=${OUTPUT_DIR}/\${SLURM_JOBID}-${NAME}/mpi
 
-mkdir -p log run work \$(dirname \${OF_PROC})
-
-mpiexec -of-proc \${OF_PROC} ./gatherhosts_ips hosts-\${PJM_JOBID}
-mpiexec -of-proc \${OF_PROC} ./start_spark_cluster.sh &
-bash -x ./run_spark_jobs.sh ${DBFILE} ${QUERYFILE}
+rm -rf  hosts master_success
+mkdir -p log run hosts work \$(dirname \${OF_PROC})
+mpiexec ./gatherhosts_ips ./hosts/hosts-\${SLURM_JOBID}
+mpiexec ./start_spark_cluster.sh &
+bash ./run_spark_jobs_arc.sh ${DBFILE} ${QUERYFILE}
 # mpiexec -of-proc \${OF_PROC} ./stop_spark_cluster.sh &
-rm -rf master_success-\${PJM_JOBID}
+rm -rf master_success
 echo FSUB IS DONE
 EOF
 
+sbatch ${SLURM_ARGS[@]} $TMPFILE 
 # DBFILE=non-rRNA-reads.fa
 # Galaxy25-\[Geobacter_metallireducens.fasta\].fasta
 # QUERYFILE=sample_text.fa

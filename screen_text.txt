@@ -1,0 +1,14 @@
+INPUT_PATH       = /fastscratch/karimy/blastDB/uniprot_sprot.fasta
+OUTPUT_PATH      = /localscratch/uniprot_sprot_formatted
+PARSE_OPTIONS    = T
+PARTITIONS       = 4
+WORKERS          = 4
+Spark SLURM PATH = /projects/synergy_lab/ritvik/Voltron/Dependencies/spark-slurm/spark_normal_full_node_nohadoop
+Job Time         = 120
+HOSTNAME_PREFIX  = tc
+/fastscratch/ritvikp/SparkLogs/x/
+/fastscratch/ritvikp/SparkLogs/
+Waiting for SLURM job to start
+SLURM job now running
+Waiting for job directory
+Waiting for Spark Master
