@@ -3,8 +3,8 @@
 # set -x
 
 
-NGROUPS=${1:-1}
-PART_SIZE=$(( $PJM_MPI_PROC / $NGROUPS ))
+NGROUP=${1:-1}
+PART_SIZE=$(( $PJM_MPI_PROC / $NGROUP ))
 GROUP_RANK=$(( $PMIX_RANK / $PART_SIZE ))
 SUB_RANK=$(( $PMIX_RANK % $PART_SIZE ))
 
@@ -46,7 +46,7 @@ start_master() {
 }
 
 start_worker () {
-    echo WORKER: $NGROUPS
+    echo WORKER: $NGROUP
     while [ ! -e ${MASTER_FILE} ]; do
         sleep 1
     done
@@ -69,5 +69,16 @@ start_cluster () {
     fi
 }
 
-split -n$NGROUPS -d -a1 hosts hosts-${PJM_JOBID}-
-start_cluster
+split -n$NGROUP -d -a1 hosts hosts-${PJM_JOBID}-
+
+OF_PROC=${OUTPUT_DIR}/${PJM_JOBID}-${NAME}/mpi
+
+mkdir -p log run work $(dirname ${OF_PROC})
+
+mpiexec -of-proc ${OF_PROC} ./gatherhosts_ips hosts-${PJM_JOBID}
+mpiexec -of-proc ${OF_PROC} ./multi_level.sh &
+bash -x ./run_spark_jobs.sh ${DBFILE} ${QUERYFILE}
+# mpiexec -of-proc \${OF_PROC} ./stop_spark_cluster.sh &
+rm -rf master_success-${PJM_JOBID}
+echo FSUB IS DONE
+EOF
