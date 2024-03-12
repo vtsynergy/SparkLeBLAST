@@ -27,8 +27,8 @@ for gid in $(seq 0 $(( ${NUM_GROUPS} - 1 ))); do
   vcord=${grp_tmp_files}/vcord
   rm -f ${vcord}
   yes \(${gid}\) | head -n $GROUP_SIZE > ${vcord}
-  of_proc=${OUT_DIR}/mpi/grp_${gid}/
-  # mkdir -p $(dirname ${of_proc})
+  of_proc=${OUT_DIR}/mpi/grp_${gid}/out
+  mkdir -p $(dirname ${of_proc})
   mpiexec -of-proc ${of_proc} --vcoordfile ${vcord} hostname
 done
 
