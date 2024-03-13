@@ -22,8 +22,8 @@ else
   NUM_SEGMENTS=3
   OUT_DIR=$(realpath ./foobar)
 fi
-DB_FILE=$(realpath data/g50.fasta)
-QUERY_FILE=$(realpath data/non-RNA-reads.fa)
+DB_FILE=$(realpath data/non-rRNA-reads.fa)
+QUERY_FILE=$(realpath data/g50.fasta)
 
 seg_dir() { echo "$(realpath "${OUT_DIR}")/seg${1}"; }
 seg_tmp_dir() { echo "$(seg_dir "$1")/tmp"; }
@@ -40,7 +40,7 @@ mkvcoord () {
   yes "(${SEG})" | head -n $group_size > "${vcoord}"
 }
 
-mpi_args () {
+mpi_with_args () {
   MPI_ARGS=(
   -of-proc "$(seg_of_proc "$SEG")" 
   --vcoordfile "${vcoord}"
