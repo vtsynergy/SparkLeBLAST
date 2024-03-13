@@ -16,7 +16,8 @@ PLE_MPI_STD_EMPTYFILE="off"
 
 # $PJM_NODE $PJM_MPI_PROC
 NUM_SEGMENTS=${PJM_NODE}
-QUERY_FILE=$(realpath data/g50.fasta)
+DB_FILE=$(realpath data/g50.fasta)
+QUERY_FILE=$(realpath data/non-RNA-reads.fa)
 # OUT_DIR=$(realpath "${PJM_STDOUT_PATH%.*}") # ttiny/123
 OUT_DIR=$(realpath ./foobar)
 NUM_SEGMENTS=3
@@ -35,8 +36,11 @@ mkvcoord () {
   yes "(${SEG})" | head -n $group_size > "${vcoord}"
 }
 
-segmpiexec () {
-  mpiexec -of-proc "$(seg_of_proc "$SEG")" --vcoordfile "${vcoord}" "$@"
+mpi_args () {
+  MPI_ARGS=(
+  -of-proc "$(seg_of_proc "$SEG")" 
+  --vcoordfile "${vcoord}" "$@"
+  )
 }
 
 split_query () {
@@ -57,15 +61,14 @@ split_query () {
   popd || exit
 }
 
-each_group() {
-  mkvcoord
-  segmpiexec hostname
-}
-
 group_size=$(( PJM_MPI_PROC / PJM_NODE ))
 for SEG in $(seq 0 $(( NUM_SEGMENTS - 1 ))); do
-  mkdirs "$SEG"
-  # each_group
+  mkdirs
+  mkvcoord
 done
 split_query
+for SEG in $(seq 0 $(( NUM_SEGMENTS - 1 ))); do
+  mpi_args
+  mpiexec "${MPI_ARGS[@]}" hostname
+done
 
