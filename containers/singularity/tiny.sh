@@ -25,6 +25,15 @@ mkvcoord () { yes "(${seg})" | head -n $GROUP_SIZE > "${vcoord}"; }
 
 segmpiexec () { mpiexec -of-proc "${of_proc}" --vcoordfile "${vcoord}" "$@"; }
 
+split () {
+
+all_lines=$(wc -l "$file" | cut -f1 -d \ )
+  # num_lines=CEIL(all_lines / num_chunks)
+  num_lines=$(( ( all_lines + num_chunks - 1) / num_chunks ))
+  if [ $(( num_lines % 2 )) -eq 1 ]; then num_lines=$(( num_lines + 1 )); fi
+  split -l $num_lines "$file" --additional-suffix="-$(basename "${file}")-numchunks${num_chunks}"
+}
+
 each_group() {
   vcoord=${seg_tmp_dir}/vcoord
   mkvcoord
