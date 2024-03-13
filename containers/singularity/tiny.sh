@@ -12,20 +12,24 @@
 # echo PJM_STDERR_PATH $PJM_STDERR_PATH
 
 set -x
-PLE_MPI_STD_EMPTYFILE="off"
 
 # $PJM_NODE $PJM_MPI_PROC
-NUM_SEGMENTS=${PJM_NODE}
+if [[ "$PJM_ENVIRONMENT" = "BATCH" ]]; then
+  PLE_MPI_STD_EMPTYFILE="off"
+  NUM_SEGMENTS=${PJM_NODE}
+  OUT_DIR=$(realpath "${PJM_STDOUT_PATH%.*}") # ttiny/123
+else
+  NUM_SEGMENTS=3
+  OUT_DIR=$(realpath ./foobar)
+fi
 DB_FILE=$(realpath data/g50.fasta)
 QUERY_FILE=$(realpath data/non-RNA-reads.fa)
-# OUT_DIR=$(realpath "${PJM_STDOUT_PATH%.*}") # ttiny/123
-OUT_DIR=$(realpath ./foobar)
-NUM_SEGMENTS=3
 
 seg_dir() { echo "$(realpath "${OUT_DIR}")/seg${1}"; }
 seg_tmp_dir() { echo "$(seg_dir "$1")/tmp"; }
 seg_mpi_dir() { echo "$(seg_dir "$1")/out"; }
 seg_of_proc() { echo "$(seg_mpi_dir "$1")/mpi"; }
+seg_hosts_file() { echo "$(seg_tmp_dir "$1")/hosts"; }
 
 mkdirs () { 
   mkdir -p "$(seg_tmp_dir "$SEG")" "$(seg_mpi_dir "$SEG")"
@@ -39,8 +43,9 @@ mkvcoord () {
 mpi_args () {
   MPI_ARGS=(
   -of-proc "$(seg_of_proc "$SEG")" 
-  --vcoordfile "${vcoord}" "$@"
+  --vcoordfile "${vcoord}"
   )
+  mpiexec "${MPI_ARGS[@]}" "$@"
 }
 
 split_query () {
@@ -68,7 +73,10 @@ for SEG in $(seq 0 $(( NUM_SEGMENTS - 1 ))); do
 done
 split_query
 for SEG in $(seq 0 $(( NUM_SEGMENTS - 1 ))); do
-  mpi_args
-  mpiexec "${MPI_ARGS[@]}" hostname
+  mpi_with_args ./gatherhosts_ips "$(seg_hosts_file "$SEG")"
+  # mpiexec -of-proc \${OF_PROC} ./start_spark_cluster.sh &
+  # bash -x ./run_spark_jobs.sh ${DBFILE} ${QUERYFILE}
+  # # mpiexec -of-proc \${OF_PROC} ./stop_spark_cluster.sh &
+  # rm -rf master_success-\${PJM_JOBID}
 done
 
