@@ -14,38 +14,58 @@
 set -x
 PLE_MPI_STD_EMPTYFILE="off"
 
-OUT_DIR=${PJM_STDOUT_PATH%.*} # ttiny/123
-mkdir -p "${TMP_FILES}"
-
 # $PJM_NODE $PJM_MPI_PROC
-GROUP_SIZE=$(( PJM_MPI_PROC / PJM_NODE ))
 NUM_SEGMENTS=${PJM_NODE}
+QUERY_FILE=$(realpath data/g50.fasta)
+# OUT_DIR=$(realpath "${PJM_STDOUT_PATH%.*}") # ttiny/123
+OUT_DIR=$(realpath ./foobar)
+NUM_SEGMENTS=3
 
-mkvcoord () { yes "(${seg})" | head -n $GROUP_SIZE > "${vcoord}"; }
+seg_dir() { echo "$(realpath "${OUT_DIR}")/seg${1}"; }
+seg_tmp_dir() { echo "$(seg_dir "$1")/tmp"; }
+seg_mpi_dir() { echo "$(seg_dir "$1")/out"; }
+seg_of_proc() { echo "$(seg_mpi_dir "$1")/mpi"; }
 
-segmpiexec () { mpiexec -of-proc "${of_proc}" --vcoordfile "${vcoord}" "$@"; }
+mkdirs () { 
+  mkdir -p "$(seg_tmp_dir "$SEG")" "$(seg_mpi_dir "$SEG")"
+}
 
-split () {
+mkvcoord () { 
+  vcoord="$(seg_tmp_dir "$SEG")/vcoord"
+  yes "(${SEG})" | head -n $group_size > "${vcoord}"
+}
 
-all_lines=$(wc -l "$file" | cut -f1 -d \ )
-  # num_lines=CEIL(all_lines / num_chunks)
-  num_lines=$(( ( all_lines + num_chunks - 1) / num_chunks ))
+segmpiexec () {
+  mpiexec -of-proc "$(seg_of_proc "$SEG")" --vcoordfile "${vcoord}" "$@"
+}
+
+split_query () {
+  pushd "$OUT_DIR" || exit
+  num_lines=$(wc -l "$QUERY_FILE" | cut -f1 -d \ )
+  # num_lines=CEIL(num_lines / NUM_SEGMENTS)
+  num_lines=$(( ( num_lines + NUM_SEGMENTS - 1) / NUM_SEGMENTS ))
   if [ $(( num_lines % 2 )) -eq 1 ]; then num_lines=$(( num_lines + 1 )); fi
-  split -l $num_lines "$file" --additional-suffix="-$(basename "${file}")-numchunks${num_chunks}"
+  suffix="-$(basename "$QUERY_FILE")-numseg${NUM_SEGMENTS}"
+  split -l $num_lines "$QUERY_FILE" --additional-suffix="$suffix"
+  mapfile -t < <(ls ./*"${suffix}"*)
+  echo "num files: ${#MAPFILE[@]}"
+  for i in "${!MAPFILE[@]}"; do
+    echo "$i ${MAPFILE[$i]}"
+    seg_query_file[i]="$(seg_dir "$i")/$(basename "${MAPFILE[$i]}")"
+    mv "${MAPFILE[$i]}" "${seg_query_file[$i]}"
+  done
+  popd || exit
 }
 
 each_group() {
-  vcoord=${seg_tmp_dir}/vcoord
   mkvcoord
   segmpiexec hostname
 }
 
-for seg in $(seq 0 $(( NUM_SEGMENTS - 1 ))); do
-  seg_dir=${OUT_DIR}/seg${seg}
-  seg_tmp_dir="${seg_dir}/tmp"
-  of_proc=${seg_dir}/out/mpi
-  mkdir -p "${seg_tmp_dir}" "$(dirname "${of_proc}")"
-  ./split_query.sh
-  each_group
+group_size=$(( PJM_MPI_PROC / PJM_NODE ))
+for SEG in $(seq 0 $(( NUM_SEGMENTS - 1 ))); do
+  mkdirs "$SEG"
+  # each_group
 done
+split_query
 
