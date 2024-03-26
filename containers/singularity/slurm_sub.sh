@@ -29,30 +29,19 @@ else
     echo "$0 WARNING: git email not set!"
 fi
 
+if [ ${NPROC} -gt 384 ]; then
+  RSCGRP=large;
+else
+  RSCGRP=small;
+fi
 
 OUTPUT_DIR=output
+
 NAME=sparkle-${NPROC}
-PJSUB_ARGS=(
-  -N ${NAME}
-  -S # -j
-  -o ${OUTPUT_DIR}/%j-${NAME}.stdout
-  -e ${OUTPUT_DIR}/%j-${NAME}.stderr
-  --spath ${OUTPUT_DIR}/%j-${NAME}.stat
-  -x PJM_LLIO_GFSCACHE=/vol0004
-  -x SINGULARITY_TMPDIR=/local
-  -g ra000012
-  # --llio localtmp-size=10Gi
-  -L rscgrp=${RSCGRP}
-  -L node=${NPROC}
-  -L elapse=${ELAPSE}
-  -L jobenv=singularity
-  --mpi proc=${NPROC}
-  ${email_args}
-)
 
 SLURM_ARGS=(
  -N ${NPROC}
- -p p100_dev_q
+ -p p100_normal_q
  -A hpcbigdata2
  --exclusive
  --time 01:00:00
@@ -73,13 +62,11 @@ module load OpenMPI
 module load containers/singularity
 OF_PROC=${OUTPUT_DIR}/\${SLURM_JOBID}-${NAME}/mpi
 
-rm -rf  hosts master_success
-mkdir -p log run hosts work \$(dirname \${OF_PROC})
-mpiexec ./gatherhosts_ips ./hosts/hosts-\${SLURM_JOBID}
-mpiexec ./start_spark_cluster.sh &
-bash ./run_spark_jobs_arc.sh ${DBFILE} ${QUERYFILE}
-# mpiexec -of-proc \${OF_PROC} ./stop_spark_cluster.sh &
-rm -rf master_success
+mkdir -p log run work \$(dirname \${OF_PROC})
+mpiexec --output-filename \${OF_PROC} ./gatherhosts_ips hosts-\${SLURM_JOBID}
+mpiexec --output-filename \${OF_PROC} ./start_spark_cluster.sh &
+bash ./run_spark_jobs.sh ${DBFILE} ${QUERYFILE}
+rm -rf master_success-\${SLURM_JOBID}
 echo FSUB IS DONE
 EOF
 

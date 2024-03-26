@@ -1,6 +1,6 @@
 #!/bin/bash
 
-rm -f master_success-${PJM_JOBID}
+rm -f master_success-${SLURM_JOBID}
 if [ ${PMIX_RANK} -eq "0" ]; then
     bash ./start_spark_master.sh &
 else

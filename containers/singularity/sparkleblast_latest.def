@@ -12,9 +12,9 @@ From: ubuntu:24.04
     
     # Install NCBI BLAST
     tar -xvf /opt/ncbi-blast-2.13.0+-src.tar.gz -C /opt
-    cd /opt/ncbi-blast-2.13.0+-src/c++
-    ./configure
-    make -j
+    #cd /opt/ncbi-blast-2.13.0+-src/c++
+    #./configure
+    #make -j
     
     # Install Apache Spark
     wget https://archive.apache.org/dist/spark/spark-2.2.0/spark-2.2.0-bin-hadoop2.6.tgz -P /opt

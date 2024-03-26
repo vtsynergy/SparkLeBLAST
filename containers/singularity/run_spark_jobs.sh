@@ -3,16 +3,18 @@
 DBFILE=$1
 QUERYFILE=$2
 
-# PJM_MPI_PROC # possible word size
-# PJM_JOBNAME=STDIN
-# PJM_SUBJOBID=28463923
-# PJM_JOBID=28463923
-# PJM_JOBDIR=/vol0004/ra000012/data/vatai/code/fugaku-sparkle/SparkLeBLAST/containers/singularity
+#SBATCH --nodes=1                 
+#SBATCH --time=1:00:00              
+#SBATCH -p p100_dev_q
+#SBATCH -A hpcbigdata2
+#SBATCH --exclusive 
 
 CONTAINER_DATA_DIR=/tmp/data
 HOST_DATA_DIR=./data
 
-NUM_PART=$(( ${PJM_MPI_PROC} - 1 ))
+
+NUM_PART=$(( ${OMPI_COMM_WORLD_SIZE} - 1 ))
+#NUM_PART=$(( ${NPROC} - 1 ))
 echo "NUM_PART=${NUM_PART}"
 
 MAKEDB_OUT_DIR=makedb_out/${DBFILE}_${NUM_PART}
@@ -20,7 +22,7 @@ CONTAINER_MAKEDB_OUT_DIR=${CONTAINER_DATA_DIR}/${MAKEDB_OUT_DIR}
 HOST_MAKEDB_OUT_DIR=${HOST_DATA_DIR}/${MAKEDB_OUT_DIR}
 mkdir -p $(dirname ${HOST_MAKEDB_OUT_DIR})
 
-SEARCH_OUT_DIR=search_out/${DBFILE}_${NUM_PART}_${QUERYFILE}/${PJM_JOBID}_$(date -I)_$(hostname)
+SEARCH_OUT_DIR=search_out/${DBFILE}_${NUM_PART}_${QUERYFILE}/${SLURM_JOBID}_$(date -I)_$(hostname)
 mkdir -p $(dirname ${HOST_DATA_DIR}/${SEARCH_OUT_DIR})
 
 SINGULARITY_ARGS=(
@@ -29,7 +31,7 @@ SINGULARITY_ARGS=(
   --env SLB_WORKDIR=/opt/sparkleblast
   # --cleanenv
   --disable-cache
-  --bind hosts-${PJM_JOBID}:/etc/hosts
+  --bind hosts-${SLURM_JOBID}:/etc/hosts
   --bind ${HOST_DATA_DIR}:${CONTAINER_DATA_DIR}
 )
 
@@ -51,11 +53,12 @@ SEARCH_ARGS=(
 )
 
 if [ ! -e ${HOST_MAKEDB_OUT_DIR}/database.dbs ]; then
-    rm -rf ${HOST_MAKEDB_OUT_DIR}
+    if [ ${PMIX_RANK} -eq 0 ]; then
+        rm -rf ${HOST_MAKEDB_OUT_DIR}
+    fi
     singularity exec "${SINGULARITY_ARGS[@]}" sparkleblast_latest.sif \
         /opt/sparkleblast/SparkLeMakeDB.sh ${MAKEDB_ARGS[@]}
 fi
-
 singularity exec "${SINGULARITY_ARGS[@]}" sparkleblast_latest.sif \
   /opt/sparkleblast/SparkLeBLASTSearch.sh ${SEARCH_ARGS[@]}
 
