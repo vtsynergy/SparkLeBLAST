@@ -29,7 +29,7 @@ From: ubuntu:24.04
     tar -xvf /opt/sbt-1.8.2.tgz -C /opt
 
     # Download and set up SparkLeBLAST
-    curl -L https://github.com/vtsynergy/SparkLeBLAST/tarball/master -o /opt/sparkleblast.tgz
+    curl -L https://github.com/vtsynergy/SparkLeBLAST/tarball/ARC_SLURM -o /opt/sparkleblast.tgz
     tar -xvf /opt/sparkleblast.tgz -C /opt
     mv /opt/vtsynergy-* /opt/sparkleblast
     cd /opt/sparkleblast
