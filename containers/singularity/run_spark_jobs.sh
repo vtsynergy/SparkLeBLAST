@@ -13,7 +13,7 @@ CONTAINER_DATA_DIR=/tmp/data
 HOST_DATA_DIR=./data
 
 
-NUM_PART=$(( ${OMPI_COMM_WORLD_SIZE} - 1 ))
+NUM_PART=$(( ${SLURM_JOB_NUM_NODES} - 1 ))
 #NUM_PART=$(( ${NPROC} - 1 ))
 echo "NUM_PART=${NUM_PART}"
 
