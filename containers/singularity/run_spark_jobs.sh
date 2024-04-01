@@ -5,8 +5,8 @@ QUERYFILE=$2
 
 #SBATCH --nodes=1                 
 #SBATCH --time=1:00:00              
-#SBATCH -p p100_dev_q
-#SBATCH -A hpcbigdata2
+#SBATCH -p short
+#SBATCH -A pn_cis240131
 #SBATCH --exclusive 
 
 CONTAINER_DATA_DIR=/tmp/data

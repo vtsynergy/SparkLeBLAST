@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=build-singularity
 #SBATCH --nodes=4           
-#SBATCH --account=hpcbigdata2
+#SBATCH --account=pn_cis240131
 #SBATCH --time=1:00:00       
 #SBATCH --nodes=1            
 #SBATCH --gid=ra000012       

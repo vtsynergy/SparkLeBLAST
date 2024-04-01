@@ -41,8 +41,8 @@ NAME=sparkle-${NPROC}
 
 SLURM_ARGS=(
  -N ${NPROC}
- -p p100_normal_q
- -A hpcbigdata2
+ -p short
+ -A pn_cis240131
  --exclusive
  --time 01:00:00
 
