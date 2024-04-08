@@ -1,1 +1,0 @@
-blastn -evalue 0.0000000001 -max_target_seqs 10 -max_hsps 1 -qcov_hsp_perc 60 -perc_identity 60 -outfmt 6 -num_threads 48

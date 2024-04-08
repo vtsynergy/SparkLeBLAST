@@ -2,12 +2,13 @@
 
 DBFILE=$1
 QUERYFILE=$2
+TYPE=$3
 
-#SBATCH --nodes=1                 
-#SBATCH --time=1:00:00              
+#SBATCH --nodes=1
+#SBATCH --time=1:00:00
 #SBATCH -p p100_dev_q
 #SBATCH -A hpcbigdata2
-#SBATCH --exclusive 
+#SBATCH --exclusive
 
 CONTAINER_DATA_DIR=/tmp/data
 HOST_DATA_DIR=./data
@@ -50,6 +51,7 @@ SEARCH_ARGS=(
   -db ${CONTAINER_MAKEDB_OUT_DIR}
   -m spark://$(hostname):7077
   -o ${CONTAINER_DATA_DIR}/${SEARCH_OUT_DIR}
+  -type ${TYPE}
 )
 
 echo "MPI RANK is ${OMPI_COMM_WORLD_LOCAL_RANK}"

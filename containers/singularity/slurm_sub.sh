@@ -6,6 +6,7 @@ DBFILE=$1
 QUERYFILE=$2
 export NPROC=$3
 ELAPSE=${4:-30:00}
+TYPE=$5
 
 USAGE="$0 \${NPROC}"
 if [ -z ${NPROC} ]; then
@@ -77,7 +78,7 @@ rm -rf  hosts master_success
 mkdir -p log run hosts work \$(dirname \${OF_PROC})
 mpiexec ./gatherhosts_ips ./hosts/hosts-\${SLURM_JOBID}
 mpiexec ./start_spark_cluster.sh &
-bash ./run_spark_jobs_arc.sh ${DBFILE} ${QUERYFILE}
+bash ./run_spark_jobs_arc.sh ${DBFILE} ${QUERYFILE} ${TYPE}
 # mpiexec -of-proc \${OF_PROC} ./stop_spark_cluster.sh &
 rm -rf master_success
 echo FSUB IS DONE

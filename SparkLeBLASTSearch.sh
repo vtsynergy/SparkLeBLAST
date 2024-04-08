@@ -51,6 +51,11 @@ while [[ $# -gt 0 ]]; do
       shift # past argument
       shift # past value
       ;;
+    -type|--type)
+      BLAST_TYPE="$2"
+      shift # past argument
+      shift # past value
+      ;;
     *)    # unknown option
       shift # past argument
       ;;
@@ -66,6 +71,11 @@ fi
 if [ -z ${HOSTNAME_PREFIX} ] && [ -z ${MASTER_ADDRESS} ]; then
     echo "Error: Please specify either hostname prefix using --hostnameprefix or a Spark master address using --masteraddress"
     exit 1
+fi
+
+if [ ${BLAST_TYPE} != "p" && ${BLAST_TYPE} !="n" ]; then
+    echo "Error, -type should either be p (protein) or n (nulceotide)"
+    exit -1
 fi
 
 # Defaults
@@ -158,9 +168,17 @@ numSeq=$(tail -n 1 "${DATABASE}/database.dbs")
 outfmt=6 # Hard coded for now since only tabular is currently supported
 max_target_seqs=$(grep -o -P 'max_target_seqs.{0,5}' ${SLB_WORKDIR}/blast_args.txt | grep -o [0-9]*) # Support up to 4-digits (9999) max_target_seqs_value
 
+BLAST_SEARCH_SCRIPT=""
+
+if [ ${BLAST_TYPE}=="p" ]; then
+    BLAST_SEARCH_SCRIPT="blastSearchScript_blastp"
+else
+    BLAST_SEARCH_SCRIPT="blastSearchScript_blastn"
+fi
+
 # Submit Spark job to perform blast search
 echo "Running Blast Search"
-${SPARK_HOME}/bin/spark-submit --master ${SPARK_MASTER_ADDRESS} --verbose --conf "spark.executor.instances=1" --conf "spark.driver.extraJavaOptions=-XX:MaxHeapSize=30g" --conf "spark.worker.extraJavaOptions=-XX:MaxHeapSize=30g" --conf "spark.driver.memory=29g" --conf "spark.executor.memory=29g" --class SparkLeBLASTSearch ${SLB_WORKDIR}/target/scala-2.11/simple-project_2.11-1.0.jar "${DATABASE}${partitionsIDs}" ${QUERY} ${DATABASE} "${SLB_WORKDIR}/blastSearchScript" ${dbLen} ${numSeq} ${outfmt} ${max_target_seqs} ${NCBI_BLAST_PATH} ${SLB_WORKDIR} ${OUTPUT_PATH}
+${SPARK_HOME}/bin/spark-submit --master ${SPARK_MASTER_ADDRESS} --verbose --conf "spark.executor.instances=1" --conf "spark.driver.extraJavaOptions=-XX:MaxHeapSize=30g" --conf "spark.worker.extraJavaOptions=-XX:MaxHeapSize=30g" --conf "spark.driver.memory=29g" --conf "spark.executor.memory=29g" --class SparkLeBLASTSearch ${SLB_WORKDIR}/target/scala-2.11/simple-project_2.11-1.0.jar "${DATABASE}${partitionsIDs}" ${QUERY} ${DATABASE} "${SLB_WORKDIR}/${BLAST_SEARCH_SCRIPT}" ${dbLen} ${numSeq} ${outfmt} ${max_target_seqs} ${NCBI_BLAST_PATH} ${SLB_WORKDIR} ${OUTPUT_PATH}
 echo "Blast Search Done"
 
 if [ ! -z ${SPARK_SLURM_PATH} ]; then
