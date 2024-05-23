@@ -1,5 +1,5 @@
 Bootstrap: docker
-From: ubuntu:24.04
+From: ubuntu:23.10
 
 %files
     ncbi-blast-2.13.0+-src.tar.gz  /opt
@@ -45,5 +45,5 @@ From: ubuntu:24.04
     export SLB_WORKDIR=/opt/sparkleblast
 
 %labels
-    Author: emil.vatai@riken.jp, karimy@vt.edu
+    Author: emil.vatai@riken.jp, karimy@vt.edu, ritvikp@vt.edu
     Version: v0.1.0

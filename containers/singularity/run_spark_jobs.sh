@@ -1,14 +1,12 @@
 #!/bin/bash
-
-DBFILE=$1
-QUERYFILE=$2
-
 #SBATCH --nodes=1                 
 #SBATCH --time=1:00:00              
 #SBATCH -p short
 #SBATCH -A pn_cis240131
 #SBATCH --exclusive 
 
+DBFILE=$1
+QUERYFILE=$2
 CONTAINER_DATA_DIR=/tmp/data
 HOST_DATA_DIR=./data
 
@@ -56,9 +54,9 @@ if [ ! -e ${HOST_MAKEDB_OUT_DIR}/database.dbs ]; then
     if [ ${PMIX_RANK} -eq 0 ]; then
         rm -rf ${HOST_MAKEDB_OUT_DIR}
     fi
-    singularity exec "${SINGULARITY_ARGS[@]}" sparkleblast_latest.sif \
+    singularity exec "${SINGULARITY_ARGS[@]}" /lustre/software/sparkleblast/sparkleblast_latest.sif \
         /opt/sparkleblast/SparkLeMakeDB.sh ${MAKEDB_ARGS[@]}
 fi
-singularity exec "${SINGULARITY_ARGS[@]}" sparkleblast_latest.sif \
+singularity exec "${SINGULARITY_ARGS[@]}" /lustre/software/sparkleblast/sparkleblast_latest.sif \
   /opt/sparkleblast/SparkLeBLASTSearch.sh ${SEARCH_ARGS[@]}
 
