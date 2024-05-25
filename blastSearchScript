@@ -1,21 +1,5 @@
 #!/bin/bash
-#IFS= read -r dbname;
-MPI_RANK=$OMPI_COMM_WORLD_RANK
-pad_rank() {
-    printf "%05d" $1
-}
-
-# Check if the MPI rank is 0, if so, ignore and move on
-if [ "$MPI_RANK" -eq 0 ]; then
-    echo "Rank 0: Ignoring and moving on."
-fi
-
-FILE_RANK=$((MPI_RANK - 1))
-PADDED_RANK=$(pad_rank $FILE_RANK)
-
-# Construct the filename
-dbname="part-${PADDED_RANK}"
-
+IFS= read -r dbname;
 ${NCBI_BLAST_PATH}/$(cat ${SLB_WORKDIR}/blast_args_test.txt) -query $1 -db ${2}/${dbname} -dbsize $3
 
 
