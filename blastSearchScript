@@ -1,44 +1,21 @@
 #!/bin/bash
 #IFS= read -r dbname;
-#${NCBI_BLAST_PATH}/$(cat ${SLB_WORKDIR}/blast_args_test.txt) -query $1 -db ${2}/${dbname} -dbsize $3
+MPI_RANK=$OMPI_COMM_WORLD_RANK
+pad_rank() {
+    printf "%05d" $1
+}
 
-echo "SEARCH SCRIPT STARTING"
-
-# Ensure environment variables are set
-if [ -z "${NCBI_BLAST_PATH}" ]; then
-  echo "NCBI_BLAST_PATH is not set!"
-  exit 127
-fi
-if [ -z "${SLB_WORKDIR}" ]; then
-  echo "SLB_WORKDIR is not set!"
-  exit 127
+# Check if the MPI rank is 0, if so, ignore and move on
+if [ "$MPI_RANK" -eq 0 ]; then
+    echo "Rank 0: Ignoring and moving on."
 fi
 
-# Verify blast_args.txt content
-BLAST_COMMAND="${NCBI_BLAST_PATH}/$(cat ${SLB_WORKDIR}/blast_args.txt)"
-echo "BLAST_COMMAND: ${BLAST_COMMAND}"
+FILE_RANK=$((MPI_RANK - 1))
+PADDED_RANK=$(pad_rank $FILE_RANK)
 
-# Ensure BLAST executable exists and is executable
-if [ ! -f "${BLAST_COMMAND}" ]; then
-  echo "BLAST executable not found!"
-  exit 127
-fi
-if [ ! -x "${BLAST_COMMAND}" ]; then
-  echo "BLAST executable is not executable!"
-  chmod +x "${BLAST_COMMAND}"
-fi
+# Construct the filename
+dbname="part-${PADDED_RANK}"
 
-# Read dbname from stdin
-if [ -p /dev/stdin ]; then
-  IFS= read -r dbname
-else
-  echo "No input provided for dbname"
-  exit 127
-fi
+${NCBI_BLAST_PATH}/$(cat ${SLB_WORKDIR}/blast_args_test.txt) -query $1 -db ${2}/${dbname} -dbsize $3
 
-# Print the full command with placeholders filled out
-echo "Running command: ${BLAST_COMMAND} -query $1 -db ${2}/${dbname} -dbsize $3"
-
-# Run the command
-"${BLAST_COMMAND}" -query "$1" -db "${2}/${dbname}" -dbsize "$3"
 
