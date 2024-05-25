@@ -2,7 +2,7 @@
 #IFS= read -r dbname;
 #${NCBI_BLAST_PATH}/$(cat ${SLB_WORKDIR}/blast_args_test.txt) -query $1 -db ${2}/${dbname} -dbsize $3
 
-echo SEARCH SCRIPT STARTING
+echo "SEARCH SCRIPT STARTING"
 
 # Ensure environment variables are set
 if [ -z "${NCBI_BLAST_PATH}" ]; then
