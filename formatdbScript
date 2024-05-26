@@ -1,12 +1,15 @@
 #!/bin/bash
 IFS= read -r dbname;
+logfile="formatdbScript.log"
 
-echo "For debugging purposes..."
-echo "NCBI_BLAST_PATH: ${NCBI_BLAST_PATH}"
-echo "dbRootPath: ${dbRootPath}"
-echo "dbname: ${dbname}"
-echo "SLB_WORKDIR: ${SLB_WORKDIR}"
-echo "makedb args: $(cat "${SLB_WORKDIR}/blast_makedb_args.txt")"
+{
+    echo "For debugging purposes..."
+    echo "NCBI_BLAST_PATH: ${NCBI_BLAST_PATH}"
+    echo "dbRootPath: ${dbRootPath}"
+    echo "dbname: ${dbname}"
+    echo "SLB_WORKDIR: ${SLB_WORKDIR}"
+    echo "makedb args: $(cat "${SLB_WORKDIR}/blast_makedb_args.txt")"
+} >> "$logfile"
 
 
 ${NCBI_BLAST_PATH}/makeblastdb -in $dbRootPath/$dbname $(cat ${SLB_WORKDIR}/blast_makedb_args.txt);
