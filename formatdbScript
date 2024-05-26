@@ -1,6 +1,5 @@
 #!/bin/bash
-IFS= read -r dbname;
 exit 1
 
-
+IFS= read -r dbname;
 ${NCBI_BLAST_PATH}/makeblastdb -in $dbRootPath/$dbname $(cat ${SLB_WORKDIR}/blast_makedb_args.txt);
