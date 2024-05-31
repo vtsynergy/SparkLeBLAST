@@ -2,7 +2,7 @@ Bootstrap: docker
 From: ubuntu:23.10
 
 %files
-    ncbi-blast-2.13.0+-src.tar.gz  /opt
+   ncbi-blast-2.13.0+-src.tar.gz  /opt
 
 %post
     # Update and install necessary packages
@@ -11,10 +11,10 @@ From: ubuntu:23.10
     apt-get install -y wget curl openjdk-8-jdk ant build-essential scala dropbear openssh-client openssh-server
     
     # Install NCBI BLAST
-    tar -xvf /opt/ncbi-blast-2.13.0+-src.tar.gz -C /opt
+    tar -xvzf /opt/ncbi-blast-2.13.0+-src.tar.gz -C /opt
     #cd /opt/ncbi-blast-2.13.0+-src/c++
     #./configure
-    #make -j
+    #make -j 6
     
     # Install Apache Spark
     wget https://archive.apache.org/dist/spark/spark-2.2.0/spark-2.2.0-bin-hadoop2.6.tgz -P /opt
@@ -29,7 +29,7 @@ From: ubuntu:23.10
     tar -xvf /opt/sbt-1.8.2.tgz -C /opt
 
     # Download and set up SparkLeBLAST
-    curl -L https://github.com/vtsynergy/SparkLeBLAST/tarball/ARC_SLURM -o /opt/sparkleblast.tgz
+    curl -L https://github.com/vtsynergy/SparkLeBLAST/tarball/Ookami_Slurm -o /opt/sparkleblast.tgz
     tar -xvf /opt/sparkleblast.tgz -C /opt
     mv /opt/vtsynergy-* /opt/sparkleblast
     cd /opt/sparkleblast
@@ -41,7 +41,7 @@ From: ubuntu:23.10
 
 %environment
     export SPARK_HOME=/opt/spark-2.2.0-bin-hadoop2.6
-    export NCBI_BLAST_PATH=/opt/ncbi-blast-2.13.0+-src/bin/blastp
+    export NCBI_BLAST_PATH=/opt/ncbi-blast-2.13.0+/bin
     export SLB_WORKDIR=/opt/sparkleblast
 
 %labels

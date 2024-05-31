@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash:
 #SBATCH --nodes=1                 
 #SBATCH --time=1:00:00              
 #SBATCH -p short
@@ -24,14 +24,13 @@ SEARCH_OUT_DIR=search_out/${DBFILE}_${NUM_PART}_${QUERYFILE}/${SLURM_JOBID}_$(da
 mkdir -p $(dirname ${HOST_DATA_DIR}/${SEARCH_OUT_DIR})
 
 SINGULARITY_ARGS=(
-  --env SPARK_HOME=/opt/spark-2.2.0-bin-hadoop2.6
-  --env NCBI_BLAST_PATH=/opt/ncbi-blast-2.13.0+-src/c++/ReleaseMT/bin
-  --env SLB_WORKDIR=/opt/sparkleblast
   # --cleanenv
   --disable-cache
   --bind hosts-${SLURM_JOBID}:/etc/hosts
   --bind ${HOST_DATA_DIR}:${CONTAINER_DATA_DIR}
 )
+
+echo "CONTAINER MAKEDB OUT DIR: ${CONTAINER_MAKEDB_OUT_DIR}"
 
 MAKEDB_ARGS=(
   -p $NUM_PART
@@ -54,9 +53,9 @@ if [ ! -e ${HOST_MAKEDB_OUT_DIR}/database.dbs ]; then
     if [ ${PMIX_RANK} -eq 0 ]; then
         rm -rf ${HOST_MAKEDB_OUT_DIR}
     fi
-    singularity exec "${SINGULARITY_ARGS[@]}" /lustre/software/sparkleblast/sparkleblast_latest.sif \
+    singularity exec "${SINGULARITY_ARGS[@]}" sparkleblast_latest.sif \
         /opt/sparkleblast/SparkLeMakeDB.sh ${MAKEDB_ARGS[@]}
 fi
-singularity exec "${SINGULARITY_ARGS[@]}" /lustre/software/sparkleblast/sparkleblast_latest.sif \
+singularity exec "${SINGULARITY_ARGS[@]}" sparkleblast_latest.sif \
   /opt/sparkleblast/SparkLeBLASTSearch.sh ${SEARCH_ARGS[@]}
 

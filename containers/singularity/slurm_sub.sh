@@ -57,20 +57,20 @@ mkdir -p ${OUTPUT_DIR}
 TMPFILE=$(mktemp)
 cat > $TMPFILE << EOF
 #!/bin/bash
-module reset
+#module reset
 module load openmpi/gcc13.1.0/4.1.5
-module load singularity/4.0.2
+#module load singularity/4.0.2
 OF_PROC=${OUTPUT_DIR}/\${SLURM_JOBID}-${NAME}/mpi
 
 mkdir -p log run work \$(dirname \${OF_PROC})
-mpiexec --output-filename \${OF_PROC} ./gatherhosts_ips hosts-\${SLURM_JOBID}
-mpiexec --output-filename \${OF_PROC} ./start_spark_cluster.sh &
+mpiexec --output-filename \${OF_PROC} --map-by ppr:1:node:pe=48 ./gatherhosts_ips hosts-\${SLURM_JOBID}
+mpiexec --output-filename \${OF_PROC} --map-by ppr:1:node:pe=48 ./start_spark_cluster.sh &
 bash ./run_spark_jobs.sh ${DBFILE} ${QUERYFILE}
 rm -rf master_success-\${SLURM_JOBID}
-echo FSUB IS DONE
+echo SLURM_SUB IS DONE.
 EOF
 
-sbatch ${SLURM_ARGS[@]} $TMPFILE 
+sbatch --dependency=afterok:196245 ${SLURM_ARGS[@]} $TMPFILE 
 # DBFILE=non-rRNA-reads.fa
 # Galaxy25-\[Geobacter_metallireducens.fasta\].fasta
 # QUERYFILE=sample_text.fa

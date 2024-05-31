@@ -7,4 +7,4 @@ SINGULARITY_ARGS=(
 )
 
 #singularity exec ${SINGULARITY_ARGS[@]} sparkleblast_latest.sif /bin/bash
-singularity exec /lustre/software/sparkleblast/sparkleblast_latest.sif /bin/bash
+singularity exec sparkleblast_latest.sif /bin/bash

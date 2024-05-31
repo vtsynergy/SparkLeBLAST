@@ -17,7 +17,7 @@ SINGULARITY_ARGS=(
         sleep 1
     done
     master_node=$(head -n 1 master_success-${SLURM_JOBID})
-    singularity instance start ${SINGULARITY_ARGS[@]} /lustre/software/sparkleblast/sparkleblast_latest.sif spark-process
+    singularity instance start ${SINGULARITY_ARGS[@]} sparkleblast_latest.sif spark-process
     sleep 5
     master_url="spark://${master_node}:7077"
     echo "Starting worker on node: $(hostname)"

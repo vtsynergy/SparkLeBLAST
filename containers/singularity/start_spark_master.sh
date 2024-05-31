@@ -11,7 +11,7 @@ SINGULARITY_ARGS=(
   --bind data:/tmp/data
   --disable-cache
 )
-singularity instance start ${SINGULARITY_ARGS[@]} /lustre/software/sparkleblast/sparkleblast_latest.sif spark-process
+singularity instance start ${SINGULARITY_ARGS[@]} sparkleblast_latest.sif spark-process
 
 echo "starting master on node: ${master_node}"
 singularity exec --env SPARK_MASTER_HOST=${master_node} instance://spark-process /opt/spark-2.2.0-bin-hadoop2.6/sbin/start-master.sh
