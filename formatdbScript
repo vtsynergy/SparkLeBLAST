@@ -12,5 +12,5 @@ echo "SLB_WORKDIR: ${SLB_WORKDIR}"
 echo "blast_makedb_args.txt contents: $(cat ${SLB_WORKDIR}/blast_makedb_args.txt)"
 echo "######################## INSIDE formatdbscript ###############################"
 } >> "$logfile" 2>&1
-
+dbRootPath=$1
 ${NCBI_BLAST_PATH}/makeblastdb -in $dbRootPath/$dbname $(cat ${SLB_WORKDIR}/blast_makedb_args.txt);
