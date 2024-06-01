@@ -29,7 +29,7 @@ From: ubuntu:23.10
     tar -xvf /opt/sbt-1.8.2.tgz -C /opt
 
     # Download and set up SparkLeBLAST
-    curl -L https://github.com/vtsynergy/SparkLeBLAST/tarball/Ookami_Slurm -o /opt/sparkleblast.tgz
+    curl -L https://github.com/vtsynergy/SparkLeBLAST/tarball/ACES_Slurm -o /opt/sparkleblast.tgz
     tar -xvf /opt/sparkleblast.tgz -C /opt
     mv /opt/vtsynergy-* /opt/sparkleblast
     cd /opt/sparkleblast
