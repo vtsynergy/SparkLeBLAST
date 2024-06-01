@@ -41,8 +41,7 @@ NAME=sparkle-${NPROC}
 
 SLURM_ARGS=(
  -N ${NPROC}
- -p short
- -A pn_cis240131
+ -p cpu
  --exclusive
  --time 01:00:00
 
@@ -57,14 +56,15 @@ mkdir -p ${OUTPUT_DIR}
 TMPFILE=$(mktemp)
 cat > $TMPFILE << EOF
 #!/bin/bash
-#module reset
-module load openmpi/gcc13.1.0/4.1.5
-#module load singularity/4.0.2
+module load GCC/11.3.0
+module load OpenMPI/4.1.4
+module load WebProxy
+
 OF_PROC=${OUTPUT_DIR}/\${SLURM_JOBID}-${NAME}/mpi
 
 mkdir -p log run work \$(dirname \${OF_PROC})
-mpiexec --output-filename \${OF_PROC} --map-by ppr:1:node:pe=48 ./gatherhosts_ips hosts-\${SLURM_JOBID}
-mpiexec --output-filename \${OF_PROC} --map-by ppr:1:node:pe=48 ./start_spark_cluster.sh &
+mpiexec --output-filename \${OF_PROC} --map-by ppr:1:node:pe=96 ./gatherhosts_ips hosts-\${SLURM_JOBID}
+mpiexec --output-filename \${OF_PROC} --map-by ppr:1:node:pe=96 ./start_spark_cluster.sh &
 bash ./run_spark_jobs.sh ${DBFILE} ${QUERYFILE}
 rm -rf master_success-\${SLURM_JOBID}
 echo SLURM_SUB IS DONE.
