@@ -5,7 +5,10 @@
 DBFILE=$1
 QUERYFILE=$2
 export NPROC=$3
-ELAPSE=${4:-30:00}
+ALLOCATION=$4
+ELAPSE=${5:-30:00}
+DATAPATH=${6:-"data"}
+
 
 USAGE="$0 \${NPROC}"
 if [ -z ${NPROC} ]; then
@@ -13,20 +16,20 @@ if [ -z ${NPROC} ]; then
   echo ${USAGE}
   exit 1
 fi
-if [ ! -f data/${DBFILE} ]; then
-    echo "Could not find data/${DBFILE}"
+if [ ! -f ${DATAPATH}/${DBFILE} ]; then
+    echo "Could not find ${DATAPATH}/${DBFILE}"
     echo ${USAGE}
     exit 1;
 fi
-if [ ! -f data/${QUERYFILE} ]; then
-    echo "Could not find data/${QUERYFILE}"
+if [ ! -f ${DATAPATH}/${QUERYFILE} ]; then
+    echo "Could not find ${DATAPATH}/${QUERYFILE}"
     echo ${USAGE}
     exit 1;
 fi
-if email=$(git config --get user.email); then
-    email_args="-m b,e --mail-list ${email}"
-else
-    echo "$0 WARNING: git email not set!"
+
+if [ -z "$ALLOCATION" ]; then
+  echo "Error: Allocation is not specified."
+  exit 1
 fi
 
 if [ ${NPROC} -gt 384 ]; then
@@ -41,11 +44,12 @@ NAME=sparkle-${NPROC}
 
 SLURM_ARGS=(
  -N ${NPROC}
- -p short
+ -p ${ALLOCATION}
  -A pn_cis240131
  --exclusive
- --time 01:00:00
-
+ --time ${ELAPSE}
+ --job-name "$((NPROC - 1))_Node_Run"
+--output="slurm-$((NPROC - 1))_node_${DBFILE}_database_run.out"
 )
 
 if [[ "${CLEARALL^^}" =~ ^(YES|ON|TRUE)$ ]]; then 
@@ -63,14 +67,29 @@ module load openmpi/gcc13.1.0/4.1.5
 OF_PROC=${OUTPUT_DIR}/\${SLURM_JOBID}-${NAME}/mpi
 
 mkdir -p log run work \$(dirname \${OF_PROC})
+
+# Record the start time
+START_TIME=\$(date +%s)
+
 mpiexec --output-filename \${OF_PROC} --map-by ppr:1:node:pe=48 ./gatherhosts_ips hosts-\${SLURM_JOBID}
 mpiexec --output-filename \${OF_PROC} --map-by ppr:1:node:pe=48 ./start_spark_cluster.sh &
-bash ./run_spark_jobs.sh ${DBFILE} ${QUERYFILE}
+bash ./run_spark_jobs.sh ${DBFILE} ${QUERYFILE} ${DATAPATH}
+
+
+# Record the end time
+END_TIME=\$(date +%s)
+
+# Calculate the duration
+DURATION=\$((END_TIME - START_TIME))
+
+# Output the duration
+echo "Job started at: \$(date -d @\$START_TIME)"
+echo "Job ended at: \$(date -d @\$END_TIME)"
+echo "Job duration: \$DURATION seconds"
+
+
 rm -rf master_success-\${SLURM_JOBID}
 echo SLURM_SUB IS DONE.
 EOF
 
-sbatch --dependency=afterok:196245 ${SLURM_ARGS[@]} $TMPFILE 
-# DBFILE=non-rRNA-reads.fa
-# Galaxy25-\[Geobacter_metallireducens.fasta\].fasta
-# QUERYFILE=sample_text.fa
+sbatch  ${SLURM_ARGS[@]} $TMPFILE 

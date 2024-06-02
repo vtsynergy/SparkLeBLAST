@@ -8,7 +8,7 @@ From: ubuntu:23.10
     # Update and install necessary packages
     apt-get update
     apt-get upgrade -y
-    apt-get install -y wget curl openjdk-8-jdk ant build-essential scala dropbear openssh-client openssh-server
+    apt-get install -y wget curl openjdk-8-jdk ant build-essential scala dropbear openssh-client openssh-server libdw1
     
     # Install NCBI BLAST
     tar -xvzf /opt/ncbi-blast-2.13.0+-src.tar.gz -C /opt
@@ -41,7 +41,7 @@ From: ubuntu:23.10
 
 %environment
     export SPARK_HOME=/opt/spark-2.2.0-bin-hadoop2.6
-    export NCBI_BLAST_PATH=/opt/ncbi-blast-2.13.0+/bin
+    export NCBI_BLAST_PATH=/opt/ncbi-blast-2.13.0+-src/c++/ReleaseMT/bin
     export SLB_WORKDIR=/opt/sparkleblast
 
 %labels
