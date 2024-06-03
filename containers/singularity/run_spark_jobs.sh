@@ -10,7 +10,6 @@ QUERYFILE=$2
 CONTAINER_DATA_DIR=/tmp/data
 HOST_DATA_DIR=$3
 
-
 NUM_PART=$(( ${SLURM_JOB_NUM_NODES} - 1 ))
 #NUM_PART=$(( ${NPROC} - 1 ))
 echo "NUM_PART=${NUM_PART}"
@@ -48,6 +47,12 @@ SEARCH_ARGS=(
   -m spark://$(hostname):7077
   -o ${CONTAINER_DATA_DIR}/${SEARCH_OUT_DIR}
 )
+
+echo "Contents of Data Folder:"
+
+singularity exec "${SINGULARITY_ARGS[@]}" sparkleblast_latest.sif \
+        ls -l /tmp/data 
+
 
 if [ ! -e ${HOST_MAKEDB_OUT_DIR}/database.dbs ]; then
     if [ ${PMIX_RANK} -eq 0 ]; then
