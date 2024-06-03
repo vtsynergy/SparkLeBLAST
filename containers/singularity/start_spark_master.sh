@@ -3,6 +3,7 @@
 HOST_DATA_DIR=$1
 master_node=$(hostname)
 
+
 SINGULARITY_ARGS=(
   --bind $(mktemp -d run/`hostname`_XXXX):/run
   --bind log/:/opt/spark-2.2.0-bin-hadoop2.6/logs

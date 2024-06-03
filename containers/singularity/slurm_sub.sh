@@ -72,7 +72,7 @@ mkdir -p log run work \$(dirname \${OF_PROC})
 START_TIME=\$(date +%s)
 
 mpiexec --output-filename \${OF_PROC} --map-by ppr:1:node:pe=48 ./gatherhosts_ips hosts-\${SLURM_JOBID}
-mpiexec --output-filename \${OF_PROC} --map-by ppr:1:node:pe=48 ./start_spark_cluster.sh ${HOST_DATA_DIR} &
+mpiexec --output-filename \${OF_PROC} --map-by ppr:1:node:pe=48 ./start_spark_cluster.sh ${DATAPATH} &
 bash ./run_spark_jobs.sh ${DBFILE} ${QUERYFILE} ${DATAPATH}
 
 

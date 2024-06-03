@@ -1,6 +1,7 @@
 #!/bin/bash
 
 HOST_DATA_DIR=$1
+
 # echo $(hostname)
 # echo ${master_node}
 SINGULARITY_ARGS=(
