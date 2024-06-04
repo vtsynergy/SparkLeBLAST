@@ -58,4 +58,3 @@ fi
 singularity exec "${SINGULARITY_ARGS[@]}" sparkleblast_latest.sif \
   /opt/sparkleblast/SparkLeBLASTSearch.sh ${SEARCH_ARGS[@]}
 
-./concatResults "${HOST_DATA_DIR}/${SEARCH_OUT_DIR}/output_final" "${HOST_DATA_DIR}/${SEARCH_OUT_DIR}/output_final/finalOutput"
