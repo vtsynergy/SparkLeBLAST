@@ -6,10 +6,12 @@ import org.apache.hadoop.mapreduce.lib.input.TextInputFormat
 import org.apache.spark.SparkContext
 import org.apache.spark.SparkContext._
 import org.apache.spark.SparkConf
+import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.FileSystem
 import org.apache.hadoop.fs.Path
 import org.apache.hadoop.fs.FileUtil
 import java.net.URI
+import java.io.File
 import org.apache.spark.TaskContext;
 import java.io.BufferedOutputStream;
 import scala.math._;
@@ -126,18 +128,10 @@ object SparkLeBLASTSearch {
     }
     
     sc.stop
+    val fs = FileSystem.get(new URI("file:///"), conf)
     val outputPathIntermediate = outputPath + "/output_final"
     val outputPathSingleFile = outputPath + "/final_output.txt"
-    mergePartFiles(outputPathIntermediate, outputPathSingleFile)
-    }
 
-def mergePartFiles(srcPath: String, destPath: String): Unit = {
-    val srcDir = new File(srcPath)
-    val destFile = new PrintWriter(new File(destPath))
-    
-    srcDir.listFiles.filter(_.getName.startsWith("part-")).sorted.foreach { file =>
-      scala.io.Source.fromFile(file).getLines.foreach(destFile.println)
+    FileUtil.copyMerge(fs, outputPathIntermediate, fs, outputPathSingleFile, true, conf, null)
     }
-    destFile.close()
-  }
 }
