@@ -120,7 +120,7 @@ object SparkLeBLASTSearch {
             (fields.init :+ lastField).mkString("\t")
     })
         // resultSorted.map{ case (k,v) => v.mkString("\n") }.saveAsTextFile(outputPath + "/output_final");
-	formattedResult.map { case (k, v) => v.mkString("\n") }.saveAsTextFile(s"$outputPath/output_final")
+	formattedResult.map { case (k, v) => v.mkString("\n") }.saveAsTextFile(outputPath + "/output_final")
 
     }
     
