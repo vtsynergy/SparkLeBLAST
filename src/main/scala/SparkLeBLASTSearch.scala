@@ -8,6 +8,7 @@ import org.apache.spark.SparkContext._
 import org.apache.spark.SparkConf
 import org.apache.hadoop.fs.FileSystem
 import org.apache.hadoop.fs.Path
+import org.apache.hadoop.fs.FileUtil
 import java.net.URI
 import org.apache.spark.TaskContext;
 import java.io.BufferedOutputStream;
@@ -125,5 +126,18 @@ object SparkLeBLASTSearch {
     }
     
     sc.stop
+    val outputPathIntermediate = outputPath + "/output_final"
+    val outputPathSingleFile = outputPath + "/final_output.txt"
+    mergePartFiles(outputPathIntermediate, outputPathSingleFile)
     }
+
+def mergePartFiles(srcPath: String, destPath: String): Unit = {
+    val srcDir = new File(srcPath)
+    val destFile = new PrintWriter(new File(destPath))
+    
+    srcDir.listFiles.filter(_.getName.startsWith("part-")).sorted.foreach { file =>
+      scala.io.Source.fromFile(file).getLines.foreach(destFile.println)
+    }
+    destFile.close()
+  }
 }
