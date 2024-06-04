@@ -8,13 +8,13 @@ From: ubuntu:23.10
     # Update and install necessary packages
     apt-get update
     apt-get upgrade -y
-    apt-get install -y wget curl openjdk-8-jdk ant build-essential scala dropbear openssh-client openssh-server
+    apt-get install -y wget curl openjdk-8-jdk ant build-essential scala dropbear openssh-client openssh-server g++
     
     # Install NCBI BLAST
     tar -xvzf /opt/ncbi-blast-2.13.0+-src.tar.gz -C /opt
-    #cd /opt/ncbi-blast-2.13.0+-src/c++
-    #./configure
-    #make -j 6
+    cd /opt/ncbi-blast-2.13.0+-src/c++
+    ./configure
+    make
     
     # Install Apache Spark
     wget https://archive.apache.org/dist/spark/spark-2.2.0/spark-2.2.0-bin-hadoop2.6.tgz -P /opt
@@ -34,6 +34,7 @@ From: ubuntu:23.10
     mv /opt/vtsynergy-* /opt/sparkleblast
     cd /opt/sparkleblast
     /opt/sbt/bin/sbt package
+    g++ -std=c++17 concatResults.cpp -o concatResults
     cd /
     
     # Add a new user
@@ -41,7 +42,7 @@ From: ubuntu:23.10
 
 %environment
     export SPARK_HOME=/opt/spark-2.2.0-bin-hadoop2.6
-    export NCBI_BLAST_PATH=/opt/ncbi-blast-2.13.0+/bin
+    export NCBI_BLAST_PATH=/opt/ncbi-blast-2.13.0+-src/c++/ReleaseMT/bin
     export SLB_WORKDIR=/opt/sparkleblast
 
 %labels
