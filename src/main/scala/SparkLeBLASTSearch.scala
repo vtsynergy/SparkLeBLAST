@@ -112,7 +112,15 @@ object SparkLeBLASTSearch {
         val resultSorted = resultByQuery.mapValues( line => line.split("\n"))
                                         .mapValues(
         _.map(result => (result,result.split("\t")(result.split("\t").length - 2).toDouble)).sortBy(_._2).take(alignmentsPerQuery));
-        resultSorted.map{ case (k,v) => v.mkString("\n") }.saveAsTextFile(outputPath + "/output_final");
+
+	val formattedResult = resultSorted.mapValues(_.map {
+        case (result, _) =>
+            val fields = result.split("\t")
+            val lastField = fields.last.split(",")(0)
+            (fields.init :+ lastField).mkString("\t")
+    })
+        // resultSorted.map{ case (k,v) => v.mkString("\n") }.saveAsTextFile(outputPath + "/output_final");
+	formattedResult.map { case (k, v) => v.mkString("\n") }.saveAsTextFile(s"$outputPath/output_final")
 
     }
     
