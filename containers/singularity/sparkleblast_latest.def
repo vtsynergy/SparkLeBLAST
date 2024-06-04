@@ -8,7 +8,7 @@ From: ubuntu:23.10
     # Update and install necessary packages
     apt-get update
     apt-get upgrade -y
-    apt-get install -y wget curl openjdk-8-jdk ant build-essential scala dropbear openssh-client openssh-server libdw1
+    apt-get install -y wget curl openjdk-8-jdk ant build-essential scala dropbear openssh-client openssh-server libdw1 g++
     
     # Install NCBI BLAST
     tar -xvzf /opt/ncbi-blast-2.13.0+-src.tar.gz -C /opt
@@ -34,6 +34,7 @@ From: ubuntu:23.10
     mv /opt/vtsynergy-* /opt/sparkleblast
     cd /opt/sparkleblast
     /opt/sbt/bin/sbt package
+    g++ -std=c++17 concatResults.cpp -o concatResults 
     cd /
     
     # Add a new user
