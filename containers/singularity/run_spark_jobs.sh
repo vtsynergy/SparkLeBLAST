@@ -48,12 +48,6 @@ SEARCH_ARGS=(
   -o ${CONTAINER_DATA_DIR}/${SEARCH_OUT_DIR}
 )
 
-echo "Contents of Data Folder:"
-
-singularity exec "${SINGULARITY_ARGS[@]}" sparkleblast_latest.sif \
-        ls -l /tmp/data 
-
-
 if [ ! -e ${HOST_MAKEDB_OUT_DIR}/database.dbs ]; then
     if [ ${PMIX_RANK} -eq 0 ]; then
         rm -rf ${HOST_MAKEDB_OUT_DIR}
@@ -64,3 +58,4 @@ fi
 singularity exec "${SINGULARITY_ARGS[@]}" sparkleblast_latest.sif \
   /opt/sparkleblast/SparkLeBLASTSearch.sh ${SEARCH_ARGS[@]}
 
+./concatResults "${HOST_DATA_DIR}/${SEARCH_OUT_DIR}/output_final" "${HOST_DATA_DIR}/${SEARCH_OUT_DIR}/output_final/finalOutput"

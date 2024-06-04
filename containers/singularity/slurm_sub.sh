@@ -54,7 +54,7 @@ SLURM_ARGS=(
 
 if [[ "${CLEARALL^^}" =~ ^(YES|ON|TRUE)$ ]]; then 
   # must be outside pjsub
-  rm -rf output run log work data/makedb_out data/search_out
+  rm -rf output run log work ${DATAPATH}/makedb_out ${DATAPATH}/search_out
 fi
 
 mkdir -p ${OUTPUT_DIR}
@@ -74,7 +74,6 @@ START_TIME=\$(date +%s)
 mpiexec --output-filename \${OF_PROC} --map-by ppr:1:node:pe=48 ./gatherhosts_ips hosts-\${SLURM_JOBID}
 mpiexec --output-filename \${OF_PROC} --map-by ppr:1:node:pe=48 ./start_spark_cluster.sh ${DATAPATH} &
 bash ./run_spark_jobs.sh ${DBFILE} ${QUERYFILE} ${DATAPATH}
-
 
 # Record the end time
 END_TIME=\$(date +%s)
