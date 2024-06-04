@@ -129,9 +129,10 @@ object SparkLeBLASTSearch {
     
     sc.stop
     val fs = FileSystem.get(new URI("file:///"), conf)
-    val outputPathIntermediate = outputPath + "/output_final"
-    val outputPathSingleFile = outputPath + "/final_output.txt"
+    val outputPathIntermediate = new Path(outputPath + "/output_final")
+    val outputPathSingleFile = new Path(outputPath + "/final_output.txt")
 
     FileUtil.copyMerge(fs, outputPathIntermediate, fs, outputPathSingleFile, true, conf, null)
+
     }
 }
