@@ -61,9 +61,7 @@ mkdir -p ${OUTPUT_DIR}
 TMPFILE=$(mktemp)
 cat > $TMPFILE << EOF
 #!/bin/bash
-#module reset
-module load openmpi/gcc13.1.0/4.1.5
-#module load singularity/4.0.2
+
 OF_PROC=${OUTPUT_DIR}/\${SLURM_JOBID}-${NAME}/mpi
 
 mkdir -p log run work \$(dirname \${OF_PROC})
