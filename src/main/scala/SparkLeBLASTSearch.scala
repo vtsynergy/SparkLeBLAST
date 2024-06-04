@@ -132,7 +132,7 @@ object SparkLeBLASTSearch {
     val outputPathIntermediate = new Path(outputPath + "/output_final")
     val outputPathSingleFile = new Path(outputPath + "/final_output.txt")
 
-    FileUtil.copyMerge(fs, outputPathIntermediate, fs, outputPathSingleFile, true, conf, null)
+    FileUtil.copyMerge(fs, outputPathIntermediate, fs, outputPathSingleFile, false, conf, null)
 
     }
 }
