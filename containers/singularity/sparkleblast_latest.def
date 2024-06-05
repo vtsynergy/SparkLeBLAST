@@ -34,7 +34,7 @@ From: ubuntu:23.10
     mv /opt/vtsynergy-* /opt/sparkleblast
     cd /opt/sparkleblast
     /opt/sbt/bin/sbt package
-    g++ -std=c++17 concatResults.cpp -o concatResults
+    g++ -std=c++17 finalMerge.cpp -o finalMerge
     cd /
     
     # Add a new user

@@ -90,6 +90,3 @@ echo SLURM_SUB IS DONE.
 EOF
 
 sbatch  ${SLURM_ARGS[@]} $TMPFILE 
-# DBFILE=non-rRNA-reads.fa
-# Galaxy25-\[Geobacter_metallireducens.fasta\].fasta
-# QUERYFILE=sample_text.fa
