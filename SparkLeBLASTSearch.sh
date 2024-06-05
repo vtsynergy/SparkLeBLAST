@@ -164,10 +164,16 @@ start_time=$(date +%s)
 echo "Running Blast Search"
 ${SPARK_HOME}/bin/spark-submit --master ${SPARK_MASTER_ADDRESS} --verbose --conf "spark.executor.instances=1" --conf "spark.driver.extraJavaOptions=-XX:MaxHeapSize=30g" --conf "spark.worker.extraJavaOptions=-XX:MaxHeapSize=30g" --conf "spark.driver.memory=29g" --conf "spark.executor.memory=29g" --class SparkLeBLASTSearch ${SLB_WORKDIR}/target/scala-2.11/simple-project_2.11-1.0.jar "${DATABASE}${partitionsIDs}" ${QUERY} ${DATABASE} "${SLB_WORKDIR}/blastSearchScript" ${dbLen} ${numSeq} ${outfmt} ${max_target_seqs} ${NCBI_BLAST_PATH} ${SLB_WORKDIR} ${OUTPUT_PATH}
 echo "Blast Search Done"
-
 end_time=$(date +%s)
 elapsed_time=$(($end_time - $start_time))
 echo "Total Blast Search Time: $elapsed_time seconds"
+
+start_time=$(date +%s)
+${SLB_WORKDIR}/finalMerge "${OUTPUT_PATH}/output_final" "${OUTPUT_PATH}/final_blastp_output"
+end_time=$(date +%s)
+elapsed_time=$(($end_time - $start_time))
+echo "Final Merge Time: $elapsed_time seconds"
+
 
 if [ ! -z ${SPARK_SLURM_PATH} ]; then
     HOST_NUMBER=$(echo ${SPARK_MASTER_ADDRESS} | grep -o "[0-9]*" | head -n 1)

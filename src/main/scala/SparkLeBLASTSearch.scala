@@ -129,33 +129,5 @@ object SparkLeBLASTSearch {
     
     sc.stop
 
-    val t0 = System.nanoTime()
-
-    val fs = FileSystem.get(new URI("file:///"), conf)
-    val outputPathIntermediate = new Path(outputPath + "/output_final")
-    val outputPathSingleFile = new Path(outputPath + "/final_output.txt")
-
-    // FileUtil.copyMerge(fs, outputPathIntermediate, fs, outputPathSingleFile, false, conf, null) ----> Does not guarantee order
-    val partFiles = fs.listStatus(outputPathIntermediate).map(_.getPath).filter(_.getName.startsWith("part-")).sorted
-
-    val out = fs.create(outputPathSingleFile)
-    val buffer = new Array 
-
-    // Copy content from each part file to the final output file in order
-    partFiles.foreach { partFile =>
-      val in = fs.open(partFile)
-      var bytesRead = in.read(buffer)
-      while (bytesRead > 0) {
-        out.write(buffer, 0, bytesRead)
-        bytesRead = in.read(buffer)
-      }
-      in.close()
-    }
-
-    out.close()
-    val t1 = System.nanoTime()
-    val mergeTime = (t1 - t0) / 1e9
-    println(s"Time spent on merging: $mergeTime seconds")
-
     }
 }
