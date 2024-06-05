@@ -128,6 +128,9 @@ object SparkLeBLASTSearch {
     }
     
     sc.stop
+
+    val t0 = System.nanoTime()
+
     val fs = FileSystem.get(new URI("file:///"), conf)
     val outputPathIntermediate = new Path(outputPath + "/output_final")
     val outputPathSingleFile = new Path(outputPath + "/final_output.txt")
@@ -150,6 +153,9 @@ object SparkLeBLASTSearch {
     }
 
     out.close()
+    val t1 = System.nanoTime()
+    val mergeTime = (t1 - t0) / 1e9
+    println(s"Time spent on merging: $mergeTime seconds")
 
     }
 }
