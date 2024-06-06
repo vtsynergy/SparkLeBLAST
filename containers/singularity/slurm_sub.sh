@@ -47,7 +47,7 @@ SLURM_ARGS=(
  --time ${ELAPSE}
  --job-name "$((NPROC - 1))_Node_Run"
  --output="slurm-$((NPROC - 1))_node_${DBFILE}_database_run.out"
- --reservation=request_ticket_58222
+ #--reservation=request_ticket_58222
 )
 
 if [[ "${CLEARALL^^}" =~ ^(YES|ON|TRUE)$ ]]; then 
