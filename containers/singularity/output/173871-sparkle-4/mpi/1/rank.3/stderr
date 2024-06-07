@@ -1,2 +1,0 @@
-INFO:    Instance stats will not be available - requires cgroups v2 with systemd as manager.
-INFO:    instance started successfully
