@@ -55,7 +55,7 @@ A version of launch scripts without SLURM will be available soon
    Compressed file could be found in this repo under covdiv_sample
 
 2) Database (Compressed Raw Size of 144GB):
-   https://ftp.ncbi.nlm.nih.gov/blast/db/FASTA/nr.gz
+   https://ftp.ncbi.nlm.nih.gov/blast/db/FASTA/nt.gz
 
 
 ## Publication
