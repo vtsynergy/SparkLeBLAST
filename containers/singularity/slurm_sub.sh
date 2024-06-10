@@ -50,6 +50,7 @@ SLURM_ARGS=(
  --time ${ELAPSE}
  --job-name "$((NPROC - 1))_Node_Run"
 --output="slurm-$((NPROC - 1))_node_${DBFILE}_database_run.out"
+--mem=MaxMemPerNode
 )
 
 if [[ "${CLEARALL^^}" =~ ^(YES|ON|TRUE)$ ]]; then 
