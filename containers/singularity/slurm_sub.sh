@@ -14,16 +14,16 @@ if [ -z ${NPROC} ]; then
   echo ${USAGE}
   exit 1
 fi
-if [ ! -f ${DATAPATH}/${DBFILE} ]; then
-    echo "Could not find data/${DBFILE}"
-    echo ${USAGE}
-    exit 1;
-fi
-if [ ! -f ${DATAPATH}/${QUERYFILE} ]; then
-    echo "Could not find data/${QUERYFILE}"
-    echo ${USAGE}
-    exit 1;
-fi
+#if [ ! -f ${DATAPATH}/${DBFILE} ]; then
+#    echo "Could not find ${DATAPATH}/${DBFILE}"
+#    echo ${USAGE}
+#    exit 1;
+#fi
+#if [ ! -f ${DATAPATH}/${QUERYFILE} ]; then
+#    echo "Could not find ${DATAPATH}/${QUERYFILE}"
+#    echo ${USAGE}
+#    exit 1;
+#fi
 if email=$(git config --get user.email); then
     email_args="-m b,e --mail-list ${email}"
 else
@@ -42,13 +42,14 @@ NAME=sparkle-${NPROC}
 
 SLURM_ARGS=(
  -N ${NPROC}
- -p debug
+ -p cpu
  --exclusive
  --time ${ELAPSE}
  --job-name "$((NPROC - 1))_Node_Run"
  --output="slurm-$((NPROC - 1))_node_${DBFILE}_database_run.out"
- #--reservation=request_ticket_58222
-)
+ --cpus-per-task=96
+ --dependency=afterok:176324:176407
+ )
 
 if [[ "${CLEARALL^^}" =~ ^(YES|ON|TRUE)$ ]]; then 
   # must be outside pjsub
@@ -62,6 +63,17 @@ cat > $TMPFILE << EOF
 module load GCC/11.3.0
 module load OpenMPI/4.1.4
 module load WebProxy
+
+if [ ! -f ${DATAPATH}/${DBFILE} ]; then
+    echo "Could not find ${DATAPATH}/${DBFILE}"
+    echo ${USAGE}
+    exit 1;
+fi
+if [ ! -f ${DATAPATH}/${QUERYFILE} ]; then
+    echo "Could not find ${DATAPATH}/${QUERYFILE}"
+    echo ${USAGE}
+    exit 1;
+fi
 
 OF_PROC=${OUTPUT_DIR}/\${SLURM_JOBID}-${NAME}/mpi
 

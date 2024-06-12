@@ -55,6 +55,6 @@ if [ ! -e ${HOST_MAKEDB_OUT_DIR}/database.dbs ]; then
     singularity exec "${SINGULARITY_ARGS[@]}" sparkleblast_latest.sif \
         /opt/sparkleblast/SparkLeMakeDB.sh ${MAKEDB_ARGS[@]}
 fi
-singularity exec "${SINGULARITY_ARGS[@]}" sparkleblast_latest.sif \
-  /opt/sparkleblast/SparkLeBLASTSearch.sh ${SEARCH_ARGS[@]}
+#singularity exec "${SINGULARITY_ARGS[@]}" sparkleblast_latest.sif \
+#  /opt/sparkleblast/SparkLeBLASTSearch.sh ${SEARCH_ARGS[@]}
 
