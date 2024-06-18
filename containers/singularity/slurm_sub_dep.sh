@@ -9,6 +9,7 @@ ALLOCATION=$4
 ELAPSE=${5:-30:00}
 DATAPATH=${6:-"data"}
 OUTPUT_FILE=${7:-"slurm-$((NPROC - 1))_node_${DBFILE}_database_run.out"}
+DEPENDENCY=$8
 
 USAGE="$0 \${NPROC}"
 if [ -z ${NPROC} ]; then
@@ -51,16 +52,17 @@ SLURM_ARGS=(
  --job-name "$((NPROC - 1))_Node_Run"
 --output=${OUTPUT_FILE}
 --mem=MaxMemPerNode
---mail-user=ritvikp@vt.edu
---mail-type=ALL
-
 )
+
+if [ ! -z ${DEPENDENCY} ]; then
+  echo "This job will depend on job id ${DEPENDENCY}"
+  SLURM_ARGS+=(--dependency=afterok:${DEPENDENCY})
+fi
 
 if [[ "${CLEARALL^^}" =~ ^(YES|ON|TRUE)$ ]]; then 
   # must be outside pjsub
   rm -rf output run log work ${DATAPATH}/makedb_out ${DATAPATH}/search_out
 fi
-
 
 mkdir -p ${OUTPUT_DIR}
 TMPFILE=$(mktemp)
@@ -96,4 +98,7 @@ rm -rf master_success-\${SLURM_JOBID}
 echo SLURM_SUB IS DONE.
 EOF
 
-sbatch  ${SLURM_ARGS[@]} $TMPFILE 
+#sbatch  ${SLURM_ARGS[@]} $TMPFILE
+
+job_id=$(sbatch ${SLURM_ARGS[@]} $TMPFILE | awk '{print $4}')
+echo $job_id > job_id.txt
