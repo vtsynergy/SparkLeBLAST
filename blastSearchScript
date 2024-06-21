@@ -1,5 +1,7 @@
 #!/bin/bash
 IFS= read -r dbname;
-${NCBI_BLAST_PATH}/$(cat ${SLB_WORKDIR}/blast_args.txt) -query $1 -db ${2}/${dbname} -dbsize $3 -searchsp 1.8570972e+20
+${NCBI_BLAST_PATH}/$(cat ${SLB_WORKDIR}/blast_args.txt) -query $1 -db ${2}/${dbname} -dbsize $3
+
+echo "DBSIZE PASSED: $3"
 
 
