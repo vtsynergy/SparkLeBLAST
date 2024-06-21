@@ -1,5 +1,5 @@
 #!/bin/bash
 IFS= read -r dbname;
-${NCBI_BLAST_PATH}/$(cat ${SLB_WORKDIR}/blast_args.txt) -query $1 -db ${2}/${dbname} -dbsize $3
+${NCBI_BLAST_PATH}/$(cat ${SLB_WORKDIR}/blast_args.txt) -query $1 -db ${2}/${dbname} -dbsize $3 -searchsp $3
 
 
