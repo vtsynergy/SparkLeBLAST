@@ -7,6 +7,8 @@ QUERYFILE=$2
 export NPROC=$3
 ELAPSE=${4:-30:00}
 DATAPATH=${5:-"data"}
+OUTPUT_FILE=${6:-"slurm-$((NPROC - 1))_node_${DBFILE}_database_run.out"}
+DEPENDENCY=${7}
 
 USAGE="$0 \${NPROC}"
 if [ -z ${NPROC} ]; then
@@ -46,9 +48,9 @@ SLURM_ARGS=(
  --exclusive
  --time ${ELAPSE}
  --job-name "$((NPROC - 1))_Node_Run"
- --output="slurm-$((NPROC - 1))_node_48_thread_${DBFILE}_database_run.out"
+ --output=${OUTPUT_FILE}
  --cpus-per-task=48
- --dependency=afterok:186273
+ #--dependency=afterok:176425:176427
  --reservation=request_ticket_58222
  )
 
@@ -56,6 +58,15 @@ if [[ "${CLEARALL^^}" =~ ^(YES|ON|TRUE)$ ]]; then
   # must be outside pjsub
   rm -rf output run log work ${DATAPATH}/makedb_out ${DATAPATH}/search_out
 fi
+
+if [ ! -z ${DEPENDENCY} ]; then
+
+  echo "Job depends on job id: ${DEPENDENCY}"
+
+  SLURM_ARGS+=(--dependency=afterok:${DEPENDENCY})
+
+fi
+
 
 mkdir -p ${OUTPUT_DIR}
 TMPFILE=$(mktemp)
@@ -102,4 +113,8 @@ rm -rf master_success-\${SLURM_JOBID}
 echo SLURM_SUB IS DONE.
 EOF
 
-sbatch  ${SLURM_ARGS[@]} $TMPFILE 
+#sbatch  ${SLURM_ARGS[@]} $TMPFILE 
+
+job_id=$(sbatch ${SLURM_ARGS[@]} $TMPFILE | awk '/Submitted batch job/ {print $NF}')
+
+echo $job_id > job_id.txt
