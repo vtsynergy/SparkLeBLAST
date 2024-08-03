@@ -31,12 +31,22 @@ seg_mpi_dir() { echo "$(seg_dir "$1")/out"; }
 seg_of_proc() { echo "$(seg_mpi_dir "$1")/mpi"; }
 seg_hosts_file() { echo "$(seg_tmp_dir "$1")/hosts"; }
 seg_vcoord_file() { echo "$(seg_tmp_dir "$SEG")/vcoord"; }
-seg_master_file() { echo "$(seg_tmp_dir "$SEG")/master"; }
-seg_run_dir() { echo "$(seg_tmp_dir "$SEG")/run"; }
-seg_log_dir() { echo "$(seg_tmp_dir "$SEG")/log"; }
-seg_work_dir() { echo "$(seg_tmp_dir "$SEG")/work"; }
 
-mkdirs () { mkdir -p "$(seg_tmp_dir "$SEG")" "$(seg_mpi_dir "$SEG")"; }
+# seg_master_file() { echo "$(seg_tmp_dir "$SEG")/master"; }
+# seg_run_dir() { echo "$(seg_tmp_dir "$SEG")/run"; }
+# seg_log_dir() { echo "$(seg_tmp_dir "$SEG")/log"; }
+# seg_work_dir() { echo "$(seg_tmp_dir "$SEG")/work"; }
+
+mkdirs () { 
+  DIRS=(
+  "$(seg_tmp_dir "$SEG")"
+  "$(seg_mpi_dir "$SEG")"
+  # "$(seg_run_dir "$SEG")"
+  # "$(seg_log_dir "$SEG")"
+  # "$(seg_work_dir "$SEG")"
+  )
+  mkdir -p "${DIRS[@]}" 
+}
 
 mkvcoord () { 
   yes "(${SEG})" | head -n $group_size > "$(seg_vcoord_file "${SEG}")"
@@ -118,7 +128,7 @@ for SEG in $(seq 0 $(( NUM_SEGMENTS - 1 ))); do
   mpi_with_args ./gatherhosts_ips "$(seg_hosts_file "$SEG")"
 done
 for SEG in $(seq 0 $(( NUM_SEGMENTS - 1 ))); do
-  mpi_with_args start_cluster "$SEG" &
+  mpi_with_args multi_start.sh "$(seg_tmp_dir "$SEG")"
   # bash -x ./run_spark_jobs.sh ${DBFILE} ${QUERYFILE}
   # # mpiexec -of-proc \${OF_PROC} ./stop_spark_cluster.sh &
   # rm -rf master_success-\${PJM_JOBID}
