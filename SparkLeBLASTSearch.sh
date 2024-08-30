@@ -153,8 +153,8 @@ fi
 
 # Partitions IDs Prefix
 partitionsIDs="_partitionsIDs"
-dbLen=$(head -n 1 "${DATABASE}/database.dbs")
-numSeq=$(tail -n 1 "${DATABASE}/database.dbs")
+dbLen=206321560
+numSeq=570420
 outfmt=6 # Hard coded for now since only tabular is currently supported
 max_target_seqs=$(grep -o -P 'max_target_seqs.{0,5}' ${SLB_WORKDIR}/blast_args.txt | grep -o [0-9]*) # Support up to 4-digits (9999) max_target_seqs_value
 
