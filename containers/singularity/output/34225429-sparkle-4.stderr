@@ -1,0 +1,38 @@
++ DBFILE=non-rRNA-reads.fa
++ QUERYFILE=sample_text.fa
++ OF_PROC=output/34225429-sparkle-4/mpi
++ CONTAINER_DATA_DIR=/tmp/data_1
++ HOST_DATA_DIR=/local/data
++ NUM_PART=3
++ echo NUM_PART=3
++ MAKEDB_OUT_DIR=makedb_out/non-rRNA-reads.fa_3
++ CONTAINER_MAKEDB_OUT_DIR=/tmp/data_1/makedb_out/non-rRNA-reads.fa_3
++ HOST_MAKEDB_OUT_DIR=./data/makedb_out/non-rRNA-reads.fa_3
+++ date -I
+++ hostname
++ SEARCH_OUT_DIR=search_out/non-rRNA-reads.fa_3_sample_text.fa/34225429_2024-08-31_d29-1003c
+++ dirname /local/data/search_out/non-rRNA-reads.fa_3_sample_text.fa/34225429_2024-08-31_d29-1003c
++ mkdir -p /local/data/search_out/non-rRNA-reads.fa_3_sample_text.fa
+mkdir: cannot create directory '/local/data': No space left on device
++ SINGULARITY_ARGS=(--env SPARK_HOME=/opt/spark-2.2.0-bin-hadoop2.6 --env NCBI_BLAST_PATH=/opt/ncbi-blast-2.13.0+-src/c++/ReleaseMT/bin --env SLB_WORKDIR=/opt/sparkleblast --disable-cache --bind hosts-${PJM_JOBID}:/etc/hosts --bind ${HOST_DATA_DIR}:${CONTAINER_DATA_DIR})
++ SEARCH_ARGS=(-p $NUM_PART -w $NUM_PART -q ${CONTAINER_DATA_DIR}/${QUERYFILE} -db ${CONTAINER_MAKEDB_OUT_DIR} -dbs ${HOST_MAKEDB_OUT_DIR} -m spark://$(hostname):7077 -o ${CONTAINER_DATA_DIR}/${SEARCH_OUT_DIR})
+++ hostname
++ mpiexec bash -c '
+mkdir -p /local/data/makedb_out/non-rRNA-reads.fa_3
+
+# Each rank handles its own files based on the node'\''s rank
+if [ ${MPI_COMM_RANK} -ne 0 ]; then
+    MPI_RANK_MINUS_ONE=$(printf '\''%05d'\'' $((MPI_COMM_RANK - 1)))
+
+    # Copy the relevant parts from GFS to LFS
+    cp ./data/makedb_out/non-rRNA-reads.fa_3/part-${MPI_RANK_MINUS_ONE}.* /local/data/makedb_out/non-rRNA-reads.fa_3
+    cp ./data/makedb_out/non-rRNA-reads.fa_3/.part-${MPI_RANK_MINUS_ONE}.* /local/data/makedb_out/non-rRNA-reads.fa_3
+    
+    # Copy the query file to the local filesystem
+    cp /tmp/data_1/sample_text.fa /local/
+fi
+'
++ singularity exec --env SPARK_HOME=/opt/spark-2.2.0-bin-hadoop2.6 --env NCBI_BLAST_PATH=/opt/ncbi-blast-2.13.0+-src/c++/ReleaseMT/bin --env SLB_WORKDIR=/opt/sparkleblast --disable-cache --bind hosts-34225429:/etc/hosts --bind /local/data:/tmp/data_1 sparkleblast_latest.sif /opt/sparkleblast/SparkLeBLASTSearch.sh -p 3 -w 3 -q /tmp/data_1/sample_text.fa -db /tmp/data_1/makedb_out/non-rRNA-reads.fa_3 -dbs ./data/makedb_out/non-rRNA-reads.fa_3 -m spark://d29-1003c:7077 -o /tmp/data_1/search_out/non-rRNA-reads.fa_3_sample_text.fa/34225429_2024-08-31_d29-1003c
++ mpiexec -of-proc output/34225429-sparkle-4/mpi ./start_spark_cluster.sh
+WARNING: skipping mount of /local/data: stat /local/data: no such file or directory
+FATAL:   container creation failed: mount /local/data->/tmp/data_1 error: while mounting /local/data: mount source /local/data doesn't exist
