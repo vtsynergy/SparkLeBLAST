@@ -1,0 +1,3 @@
+INFO:    Instance stats will not be available - system configuration does not support cgroup management.
+INFO:    instance started successfully
+mv: cannot stat '/opt/spark-2.2.0-bin-hadoop2.6/logs/spark-rprabhu-org.apache.spark.deploy.worker.Worker-1-fj030.out.4': No such file or directory

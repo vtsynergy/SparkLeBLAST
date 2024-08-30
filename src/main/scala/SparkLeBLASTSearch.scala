@@ -53,14 +53,14 @@ object SparkLeBLASTSearch {
     val resultUnsorted2 = partitions.pipe(script, env=Map("NCBI_BLAST_PATH" -> ncbiBlastPath , "SLB_WORKDIR" -> slbWorkDir)); //.saveAsTextFile("/fastscratch/karimy/finalOutput");
 
     /* Get partition size (from rdd size) */
-    val rddSize = resultUnsorted2.map(_.getBytes("UTF-8").length.toLong).reduce(_+_)
-    val partitionSize = rddSize / resultUnsorted2.partitions.length
-    println("rddSize: " + rddSize.toString)
-    println("partitionSize: " + partitionSize.toString)
-    conf.set("mapreduce.input.fileinputformat.split.minsize", partitionSize.toString)
+   // val rddSize = resultUnsorted2.map(_.getBytes("UTF-8").length.toLong).reduce(_+_)
+    //val partitionSize = rddSize / resultUnsorted2.partitions.length
+    //println("rddSize: " + rddSize.toString)
+    //println("partitionSize: " + partitionSize.toString)
+    //conf.set("mapreduce.input.fileinputformat.split.minsize", partitionSize.toString)
 
    
-    resultUnsorted2.saveAsTextFile(outputPath + "/output_intermediate");
+    //resultUnsorted2.saveAsTextFile(outputPath + "/output_intermediate");
 
     if ( outputFormat == 0 ){
     
@@ -104,6 +104,7 @@ object SparkLeBLASTSearch {
     }
     else if (outputFormat == 6){
         // output format 8 merging logic goes here
+        val startTime = System.nanoTime()
         conf.set("textinputformat.record.delimiter", "\n")
         val resultUnsorted = sc.newAPIHadoopFile(outputPath + "/output_intermediate", classOf[TextInputFormat],
                                               classOf[LongWritable], classOf[Text],conf)
@@ -124,7 +125,9 @@ object SparkLeBLASTSearch {
     })
         // resultSorted.map{ case (k,v) => v.mkString("\n") }.saveAsTextFile(outputPath + "/output_final");
 	formattedResult.map { case (k, v) => v.mkString("\n") }.saveAsTextFile(outputPath + "/output_final")
-
+        val endTime = System.nanoTime()
+        val elapsedTime = (endTime - startTime) / 1e9d
+        println(s"Time taken after outputFormat == 6: $elapsedTime seconds")
     }
     
     sc.stop

@@ -48,8 +48,8 @@ SLURM_ARGS=(
  -A pn_cis240131
  --exclusive
  --time ${ELAPSE}
- --job-name "$((NPROC - 1))_Node_Run"
---output="slurm-$((NPROC - 1))_node_${DBFILE}_database_run.out"
+ --job-name "$((NPROC - 1))_Node_Run_singleQuery"
+--output="slurm-$((NPROC - 1))_node_${DBFILE}_database_run_singleQuery.out"
 --mem=MaxMemPerNode
 )
 
