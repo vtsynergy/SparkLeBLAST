@@ -4,7 +4,7 @@
 # module load jdk
 
 
-usage() { echo "Usage: ./SparkLeBLASTSearch.sh -q /path/to/query -db /path/to/formatted/db -gop gap_open -gex gap_extend -nalign num_alignments -m master_address (launches new Spark cluster if null) -w <num_workers> -time <Time in integer minutes> -h hostname_prefix -d /path/to/logs/dir (default current dir)" 1>&2; exit 1; }
+usage() { echo "Usage: ./SparkLeBLASTSearch.sh -q /path/to/query -db /path/to/formatted/db -dbs /path/to/dbs/file -gop gap_open -gex gap_extend -nalign num_alignments -m master_address (launches new Spark cluster if null) -w <num_workers> -time <Time in integer minutes> -h hostname_prefix -d /path/to/logs/dir (default current dir)" 1>&2; exit 1; }
 
 
 while [[ $# -gt 0 ]]; do
@@ -18,6 +18,11 @@ while [[ $# -gt 0 ]]; do
       ;;
     -db|--database)
       DATABASE="$2"
+      shift # past argument
+      shift # past value
+      ;;
+     -dbs|--meta)
+      DBS="$2"
       shift # past argument
       shift # past value
       ;;
@@ -59,7 +64,7 @@ done
 
 # Required Args check:
 # --------------------
-if [ -z "${QUERY}" ] || [ -z "${DATABASE}" ]; then
+if [ -z "${QUERY}" ] || [ -z "${DATABASE}" || [ -z "${DBS}" ]]; then
     usage
 fi
 
@@ -153,14 +158,14 @@ fi
 
 # Partitions IDs Prefix
 partitionsIDs="_partitionsIDs"
-dbLen=$(head -n 1 "${DATABASE}/database.dbs")
-numSeq=$(tail -n 1 "${DATABASE}/database.dbs")
+dbLen=$(head -n 1 "${DBS}/database.dbs")
+numSeq=$(tail -n 1 "${DBS}/database.dbs")
 outfmt=6 # Hard coded for now since only tabular is currently supported
 max_target_seqs=$(grep -o -P 'max_target_seqs.{0,5}' ${SLB_WORKDIR}/blast_args.txt | grep -o [0-9]*) # Support up to 4-digits (9999) max_target_seqs_value
 
 # Submit Spark job to perform blast search
 echo "Running Blast Search"
-${SPARK_HOME}/bin/spark-submit --master ${SPARK_MASTER_ADDRESS} --verbose --conf "spark.executor.instances=1" --conf "spark.driver.extraJavaOptions=-XX:MaxHeapSize=30g" --conf "spark.worker.extraJavaOptions=-XX:MaxHeapSize=30g" --conf "spark.driver.memory=29g" --conf "spark.executor.memory=29g" --class SparkLeBLASTSearch ${SLB_WORKDIR}/target/scala-2.11/simple-project_2.11-1.0.jar "${DATABASE}${partitionsIDs}" ${QUERY} ${DATABASE} "${SLB_WORKDIR}/blastSearchScript" ${dbLen} ${numSeq} ${outfmt} ${max_target_seqs} ${NCBI_BLAST_PATH} ${SLB_WORKDIR} ${OUTPUT_PATH}
+${SPARK_HOME}/bin/spark-submit --master ${SPARK_MASTER_ADDRESS} --verbose --conf "spark.executor.instances=1" --conf "spark.driver.extraJavaOptions=-XX:MaxHeapSize=30g" --conf "spark.worker.extraJavaOptions=-XX:MaxHeapSize=30g" --conf "spark.driver.memory=29g" --conf "spark.executor.memory=29g" --class SparkLeBLASTSearch ${SLB_WORKDIR}/target/scala-2.11/simple-project_2.11-1.0.jar "${DBS}${partitionsIDs}" ${QUERY} ${DATABASE} "${SLB_WORKDIR}/blastSearchScript" ${dbLen} ${numSeq} ${outfmt} ${max_target_seqs} ${NCBI_BLAST_PATH} ${SLB_WORKDIR} ${OUTPUT_PATH}
 echo "Blast Search Done"
 
 if [ ! -z ${SPARK_SLURM_PATH} ]; then
